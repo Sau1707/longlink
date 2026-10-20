@@ -11,7 +11,6 @@ export function RadioList(
         defaultValue?: string;
         onChange?: (value: string) => void;
         orientation?: 'vertical' | 'horizontal';
-        size?: 'sm' | 'md';
     }
 ) {
     // The library's native radio inputs already provide grouping and required-field validation.
@@ -29,7 +28,7 @@ export function RadioList(
             htmlName={props.name}
             children={props.children}
             orientation={props.orientation ?? 'vertical'}
-            size={props.size ?? 'md'}
+            size="sm"
             isLabelHidden={false}
             isRequired={props.required ?? false}
             isDisabled={props.disabled ?? false}

@@ -67,11 +67,6 @@ export default function RadioListPage() {
                     description: 'Layout direction of the radio items.',
                 },
                 {
-                    name: 'size',
-                    type: '"sm" | "md"',
-                    description: 'Size of the radio controls.',
-                },
-                {
                     name: 'RadioListItem.label',
                     type: 'string',
                     description: 'Visible label identifying this choice.',

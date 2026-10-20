@@ -5001,7 +5001,6 @@ declare function RadioList(
         defaultValue?: string;
         onChange?: (value: string) => void;
         orientation?: 'vertical' | 'horizontal';
-        size?: 'sm' | 'md';
     }
 ): React.JSX.Element;
 
