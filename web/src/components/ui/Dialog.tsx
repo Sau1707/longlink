@@ -15,7 +15,7 @@ export function Dialog(props: {
     /** Spacing between the title and content; defaults to 3. */
     gap?: Spacing;
 }) {
-    // Share the Platform frame while letting content own its layout and scrolling.
+    // Keep the header fixed while bounding the content to the available viewport height.
     return (
         <AstryxDialog
             isOpen={props.isOpen}
@@ -26,9 +26,21 @@ export function Dialog(props: {
             padding={0}
         >
             <DialogClose onClose={() => props.onOpenChange(false)} />
-            <Stack gap={props.gap ?? 3} minHeight={0}>
-                {props.title && <DialogHeader title={props.title} className="p-8 pe-16" />}
-                {props.children}
+            <Stack
+                gap={0}
+                height="min(560px, calc(100dvh - var(--spacing-10) * 4))"
+                minHeight={0}
+                className="overflow-hidden"
+            >
+                {props.title && <DialogHeader title={props.title} className="p-4 pe-12" />}
+                <Stack
+                    minHeight={0}
+                    paddingBlockStart={props.title ? (props.gap ?? 3) : 0}
+                    isScrollable
+                    className="flex-1"
+                >
+                    {props.children}
+                </Stack>
             </Stack>
         </AstryxDialog>
     );

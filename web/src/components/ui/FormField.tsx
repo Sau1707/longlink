@@ -107,7 +107,7 @@ export function FormField({
 
     // Leave control presentation to Astryx and expose submission errors accessibly.
     return (
-        <Stack ref={fieldRef} gap={2}>
+        <Stack ref={fieldRef} gap={2} width="100%">
             {children}
             {serialize &&
                 name &&

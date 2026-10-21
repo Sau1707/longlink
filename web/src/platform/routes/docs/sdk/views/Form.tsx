@@ -15,8 +15,7 @@ export default function FormPage() {
                 {
                     name: 'children',
                     type: 'ReactNode',
-                    description:
-                        'Named controls and layout, or direct FormStep children for automatic navigation. Next validates the current step and shared fields; final submission validates all steps and reveals the first invalid field. Inactive fields remain mounted and enabled.',
+                    description: 'Form fields and layout, or FormStep children for a multi-step form.',
                 },
                 {
                     name: 'action',
@@ -36,8 +35,7 @@ export default function FormPage() {
                 {
                     name: 'height',
                     type: 'string | number',
-                    description:
-                        'Bounds the form height. With FormStep children, pins progress above centered, independently scrollable fields, including inside a Dialog.',
+                    description: 'Form height, with scrollable fields in multi-step forms.',
                 },
                 {
                     name: 'submitLabel',

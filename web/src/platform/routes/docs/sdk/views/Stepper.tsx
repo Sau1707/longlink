@@ -51,8 +51,7 @@ export default function StepperPage() {
                 {
                     name: 'Step.children',
                     type: 'ReactNode',
-                    description:
-                        "Content below the label and description, outside the step's activation button. Compact horizontal steppers hide it without unmounting.",
+                    description: 'Step content, hidden in compact horizontal layouts.',
                 },
             ]}
             examples={[

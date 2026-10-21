@@ -68,19 +68,13 @@ export default function DocsArticleRoute() {
                     Create a Solution
                 </Heading>
                 <Tabs hasDivider>
-                    <Tab label="Standalone" value="standalone">
-                        <CodeBlock code="uvx --from longlink longlink init --folder ." language="bash" />
-                    </Tab>
                     <Tab label="GitHub" value="github">
                         <CodeBlock code="uvx --from longlink longlink init --folder . --ci github" language="bash" />
                     </Tab>
+                    <Tab label="Standalone" value="standalone">
+                        <CodeBlock code="uvx --from longlink longlink init --folder ." language="bash" />
+                    </Tab>
                 </Tabs>
-                <Stack as="aside" className="border-s border-accent ps-4" gap={0}>
-                    <Text weight="semibold">Example</Text>
-                    <Link href="https://github.com/xLongLink/sample" hasUnderline isExternalLink>
-                        LongLink sample repository
-                    </Link>
-                </Stack>
                 <Heading id="local-development" level={2}>
                     Local Development
                 </Heading>

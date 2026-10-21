@@ -84,7 +84,6 @@ longlink = [".static/**"]
 
 [tool.setuptools.exclude-package-data]
 longlink = [
-    ".static/jsx/discovery.yml",
     ".static/new/.venv",
     ".static/new/.venv/*",
     ".static/new/.venv/**",

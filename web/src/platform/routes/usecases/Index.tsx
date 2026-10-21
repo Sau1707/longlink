@@ -1,7 +1,6 @@
 import { Page } from '@/components/Page';
 import { Grid } from '@astryxdesign/core/Grid';
 import { Text } from '@astryxdesign/core/Text';
-import { useCasePages } from '@/platform/routes';
 import { Stack } from '@astryxdesign/core/Stack';
 import { Heading } from '@astryxdesign/core/Heading';
 import { Section } from '@astryxdesign/core/Section';
@@ -35,8 +34,8 @@ export default function UseCasesIndex() {
                         </Stack>
                         <Grid columns={{ minWidth: 280, max: 3, repeat: 'fill' }} gap={6} width="100%">
                             <ClickableCard
-                                href={`${useCasePages[0].path}/`}
-                                label={useCasePages[0].label}
+                                href="/use-cases/real-estate/property-acquisition-screening/"
+                                label="Property Acquisition Screening"
                                 className="rounded-none bg-transparent"
                                 variant="default"
                                 padding={6}
@@ -53,7 +52,7 @@ export default function UseCasesIndex() {
                                         />
                                     </Stack>
                                     <Heading level={3} accessibilityLevel={2} justify="center" textWrap="balance">
-                                        {useCasePages[0].label}
+                                        Property Acquisition Screening
                                     </Heading>
                                 </Stack>
                             </ClickableCard>

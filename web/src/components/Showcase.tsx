@@ -2,170 +2,501 @@ import { useState } from 'react';
 import { Card } from '@/components/ui/Card';
 import { Grid } from '@astryxdesign/core/Grid';
 import { Icon } from '@astryxdesign/core/Icon';
+import { Item } from '@astryxdesign/core/Item';
 import { Link } from '@astryxdesign/core/Link';
 import { Text } from '@astryxdesign/core/Text';
 import { Avatar } from '@/components/ui/Avatar';
-import { Switch } from '@/components/ui/Switch';
 import { Wordmark } from '@/components/Wordmark';
 import { Badge } from '@astryxdesign/core/Badge';
 import { Stack } from '@astryxdesign/core/Stack';
-import { Selector } from '@/components/ui/Selector';
+import { Button } from '@astryxdesign/core/Button';
 import { Divider } from '@astryxdesign/core/Divider';
 import { Heading } from '@astryxdesign/core/Heading';
+import { Popover } from '@astryxdesign/core/Popover';
 import { Section } from '@astryxdesign/core/Section';
-import { TextInput } from '@/components/ui/TextInput';
+import { List, ListItem } from '@astryxdesign/core/List';
 import { Thumbnail } from '@astryxdesign/core/Thumbnail';
-import { NumberInput } from '@/components/ui/NumberInput';
 import { Tab, TabList } from '@astryxdesign/core/TabList';
-import { Circle, FileText, Settings } from 'lucide-react';
 import { PageContainer } from '@/components/PageContainer';
+import { IconButton } from '@astryxdesign/core/IconButton';
 import { Step, Stepper } from '@astryxdesign/core/Stepper';
 import { PlatformFrame } from '@/components/layouts/Platform';
 import { Table, proportional } from '@astryxdesign/core/Table';
 import { CheckboxInput } from '@astryxdesign/core/CheckboxInput';
 import { BreadcrumbItem, Breadcrumbs } from '@astryxdesign/core/Breadcrumbs';
 import { Layout, LayoutContent, LayoutPanel } from '@astryxdesign/core/Layout';
-import { Menu, MenuItem, MenuSection, MenuNavigationContext } from '@/components/ui/Menu';
+import {
+    Circle,
+    Building2,
+    Folder,
+    Trophy,
+    ChartNoAxesCombined,
+    ChevronRight,
+    BookOpen,
+    ExternalLink,
+    ListChecks,
+} from 'lucide-react';
 
-// Mirror the sample Solution's tabs without organization navigation or account data.
-const showcaseTabs = [
-    { id: 'cards', label: 'Projects', description: 'This can be used for tracking projects in a gallery.' },
-    { id: 'table', label: 'Table', description: 'This can be used for reviewing projects in a table.' },
-    { id: 'menu', label: 'Settings', description: 'This can be used for organizing settings into navigable sections.' },
+// Browse local organizations and their Solutions without requesting account data.
+const organizations = [
+    {
+        id: 'architecture',
+        name: 'Architecture',
+        description: 'Example architecture firm',
+        tabs: ['Projects', 'Competitions'],
+    },
+    {
+        id: 'real-estate',
+        name: 'Real Estate',
+        description: 'Example real estate firm',
+        tabs: ['Residential', 'Commercial'],
+    },
+    {
+        id: 'finance',
+        name: 'Finance',
+        description: 'Example finance firm',
+        tabs: ['Fixed Income', 'Equities', 'ETFs'],
+    },
 ] as const;
 
-// Share four local projects between the gallery and table without requesting Solution data.
+// Keep the architectural firm's existing example projects.
 const projects = [
     {
         id: 1,
-        name: 'Riverside Residences',
+        name: '001 - Riverside Residences',
         description: 'Modern riverside apartments.',
         status: 'Planning',
         owner: 'Anna Keller',
         ownerEmail: 'anna.keller@example.com',
         photo: 'riverside',
-        activeStep: 0,
     },
     {
         id: 2,
-        name: 'Skyline Tower',
+        name: '002 - Skyline Tower',
         description: 'A new landmark for the city.',
         status: 'In progress',
         owner: 'Marco Rossi',
         ownerEmail: 'marco.rossi@example.com',
         photo: 'skyline',
-        activeStep: 4,
     },
     {
         id: 3,
-        name: 'Garden Apartments',
+        name: '003 - Garden Apartments',
         description: 'Light-filled homes with green spaces.',
         status: 'Completed',
         owner: 'Anna Keller',
         ownerEmail: 'anna.keller@example.com',
         photo: 'garden',
-        activeStep: 5,
     },
     {
         id: 4,
-        name: 'Harbor Offices',
+        name: '004 - Harbor Offices',
         description: 'Contemporary waterfront workspaces.',
         status: 'In progress',
         owner: 'Marco Rossi',
         ownerEmail: 'marco.rossi@example.com',
         photo: 'harbor',
-        activeStep: 2,
     },
 ];
 
-// Use the same construction lifecycle for every building project, with project-specific progress.
+// Present competition entries as separate Solutions alongside commissioned projects.
+const competitions = [
+    {
+        id: 5,
+        name: '005 - Riverfront Cultural Center',
+        description: 'An open competition for a new public arts venue.',
+        status: 'In progress',
+        owner: 'Anna Keller',
+        ownerEmail: 'anna.keller@example.com',
+        photo: 'riverside',
+    },
+    {
+        id: 6,
+        name: '006 - Urban Living Pavilion',
+        description: 'A concept for sustainable city living.',
+        status: 'Planning',
+        owner: 'Marco Rossi',
+        ownerEmail: 'marco.rossi@example.com',
+        photo: 'garden',
+    },
+];
+
+// Give the real estate organization its own listings and sales progress.
+const properties = [
+    {
+        id: 1,
+        name: 'Riverside Apartment',
+        category: 'Residential',
+        description: '3 bedrooms · 145 m² · $890,000',
+        status: 'Listed',
+        owner: 'Sofia Meyer',
+        ownerEmail: 'sofia.meyer@example.com',
+        photo: 'riverside',
+    },
+    {
+        id: 2,
+        name: 'Skyline Penthouse',
+        category: 'Residential',
+        description: '4 bedrooms · 220 m² · $1,650,000',
+        status: 'Under offer',
+        owner: 'James Wilson',
+        ownerEmail: 'james.wilson@example.com',
+        photo: 'skyline',
+    },
+    {
+        id: 3,
+        name: 'Garden Residence',
+        category: 'Residential',
+        description: '2 bedrooms · 98 m² · $620,000',
+        status: 'Sold',
+        owner: 'Sofia Meyer',
+        ownerEmail: 'sofia.meyer@example.com',
+        photo: 'garden',
+    },
+    {
+        id: 4,
+        name: 'Harbor Office Suite',
+        category: 'Commercial',
+        description: 'Office · 310 m² · $1,240,000',
+        status: 'Listed',
+        owner: 'James Wilson',
+        ownerEmail: 'james.wilson@example.com',
+        photo: 'harbor',
+    },
+];
+
+// Keep sample stock prices explicit and independent of live market services.
+const stocks = [
+    { symbol: 'AAPL', name: 'Apple Inc.', price: 225.5, change: 1.24, shares: 120 },
+    { symbol: 'MSFT', name: 'Microsoft Corporation', price: 418.75, change: 0.86, shares: 80 },
+    { symbol: 'NVDA', name: 'NVIDIA Corporation', price: 132.4, change: -1.35, shares: 200 },
+    { symbol: 'GOOGL', name: 'Alphabet Inc.', price: 176.3, change: 0.52, shares: 100 },
+    { symbol: 'AMZN', name: 'Amazon.com Inc.', price: 198.6, change: -0.42, shares: 90 },
+    { symbol: 'V', name: 'Visa Inc.', price: 285.9, change: 0.68, shares: 60 },
+];
+
+const usd = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
+
+// Give the finance organization a separate example fund portfolio.
+const funds = [
+    { symbol: 'VTI', name: 'Vanguard Total Stock Market ETF', price: 285.4, change: 0.45, shares: 150 },
+    { symbol: 'VOO', name: 'Vanguard S&P 500 ETF', price: 525.8, change: 0.62, shares: 100 },
+    { symbol: 'VXUS', name: 'Vanguard Total International Stock ETF', price: 63.2, change: -0.28, shares: 200 },
+];
+
+// List example corporate issuers separately from equity and fund holdings.
+const companies = [
+    { name: 'Apple Inc.', industry: 'Technology', country: 'United States' },
+    { name: 'Microsoft Corporation', industry: 'Technology', country: 'United States' },
+    { name: 'Amazon.com Inc.', industry: 'Consumer discretionary', country: 'United States' },
+    { name: 'Visa Inc.', industry: 'Financial services', country: 'United States' },
+    { name: 'Siemens AG', industry: 'Industrials', country: 'Germany' },
+    { name: 'Nestlé S.A.', industry: 'Consumer staples', country: 'Switzerland' },
+];
+
+// Follow the supplied SIA phases, sub-phases, and required document lists.
 const projectSteps = [
     {
-        label: 'Strategic planning',
+        label: 'Strategic Planning',
         description: 'Define what you want to build, the budget, and your objectives.',
-        documents: [
-            { name: 'Client brief', available: true },
-            { name: 'Room schedule', available: true },
-            { name: 'Financial budget', available: false },
-            { name: 'Preliminary schedule', available: false },
+        subphases: [
+            {
+                code: '11',
+                label: 'Definition of Needs and Strategies',
+                documents: [
+                    'Client requirements brief (cahier des charges)',
+                    'Project objectives and scope',
+                    'Initial budget and financing assumptions',
+                    'Preliminary project schedule',
+                    'Site/property information',
+                    'Strategic options and decision report',
+                ],
+            },
         ],
     },
     {
-        label: 'Preliminary studies',
+        label: 'Preliminary Studies',
         description: 'Check the feasibility and select the project team.',
-        documents: [
-            { name: 'Site and zoning assessment', available: true },
-            { name: 'Feasibility study', available: true },
-            { name: 'Preliminary costs', available: false },
-            { name: 'Architect and engineer contracts', available: false },
+        subphases: [
+            {
+                code: '21',
+                label: 'Project Definition and Feasibility',
+                documents: [
+                    'Project brief / programme',
+                    'Cadastral and site survey',
+                    'Land registry and zoning information',
+                    'Existing building drawings, if applicable',
+                    'Feasibility study',
+                    'Initial sketches and massing studies',
+                    'Preliminary cost and schedule estimates',
+                    'Geotechnical or environmental studies, where necessary',
+                ],
+            },
+            {
+                code: '22',
+                label: 'Selection Procedure',
+                documents: [
+                    'Architect/consultant selection brief',
+                    'Competition or tender programme, if applicable',
+                    'Selection and evaluation criteria',
+                    'Tender/competition submissions',
+                    'Evaluation report',
+                    'Appointment decision',
+                    'Architect and consultant agreements',
+                ],
+            },
         ],
     },
     {
-        label: 'Project design',
+        label: 'Project Design',
         description: 'Design the house and obtain planning permission.',
-        documents: [
-            { name: 'Architectural plans', available: true },
-            { name: 'Engineering concepts', available: true },
-            { name: 'Building description', available: true },
-            { name: 'Detailed cost estimate', available: false },
-            { name: 'Permit application and approvals', available: false },
+        subphases: [
+            {
+                code: '31',
+                label: 'Preliminary Design (Avant-projet)',
+                documents: [
+                    'Preliminary architectural plans, sections and elevations',
+                    'Concept sketches and site layout',
+                    'Preliminary structural and MEP concepts',
+                    'Area and volume calculations',
+                    'Initial material and construction concept',
+                    'Preliminary cost estimate',
+                    'General project schedule',
+                    'Preliminary design report',
+                ],
+            },
+            {
+                code: '32',
+                label: "Developed Design (Projet de l'ouvrage)",
+                documents: [
+                    'Developed architectural plans, sections and elevations',
+                    'Coordinated structural and MEP drawings',
+                    'Construction and material specifications',
+                    'Preliminary construction details',
+                    'Energy and building physics concepts',
+                    'Fire safety concept, if required',
+                    'Detailed cost estimate (devis général)',
+                    'Updated project schedule',
+                    'Design coordination documentation',
+                ],
+            },
+            {
+                code: '33',
+                label: 'Building Permit Procedure',
+                documents: [
+                    'Building permit application forms',
+                    'Official site/cadastral plans',
+                    'Permit drawings (plans, sections, elevations)',
+                    'Area, volume and regulatory calculations',
+                    'Energy compliance documentation',
+                    'Fire safety and acoustic documentation, as applicable',
+                    'Technical and environmental reports, if required',
+                    'Other cantonal/municipal authorizations',
+                    'Building permit decision and approved drawings',
+                ],
+            },
         ],
     },
     {
         label: 'Tendering',
         description: 'Request quotations, compare contractors, and award contracts.',
-        documents: [
-            { name: 'Tender drawings', available: true },
-            { name: 'Bills of quantities', available: true },
-            { name: 'Specifications', available: true },
-            { name: 'Contractor bids', available: false },
-            { name: 'Comparison', available: false },
-            { name: 'Construction contracts', available: false },
+        subphases: [
+            {
+                code: '41',
+                label: 'Tendering, Bid Comparison and Contract Award',
+                documents: [
+                    'Tender drawings and technical specifications',
+                    'Bills of quantities / descriptions of works (CFC or CAN/NPK, as applicable)',
+                    'Tender conditions and pricing forms',
+                    "Contractors' quotations",
+                    'Bid comparison tables',
+                    'Tender evaluation and award recommendation',
+                    'Updated cost forecast',
+                    'Contract award documentation',
+                ],
+            },
         ],
     },
     {
-        label: 'Realization',
+        label: 'Construction / Realization',
         description: 'Prepare construction drawings, build, inspect, and hand over the house.',
-        documents: [
-            { name: 'Execution drawings', available: true },
-            { name: 'Construction and inspection records', available: true },
-            { name: 'Acceptance protocol', available: false },
-            { name: 'As-built documentation', available: false },
-            { name: 'Commissioning records', available: false },
-            { name: 'Final account', available: false },
-        ],
-    },
-    {
-        label: 'Operation and maintenance',
-        description: 'Operate, inspect, maintain, and repair the completed property.',
-        documents: [
-            { name: 'Building manual', available: true },
-            { name: 'Warranties', available: true },
-            { name: 'Inspection and service plans', available: true },
-            { name: 'Maintenance records', available: false },
-            { name: 'Repair documentation', available: false },
+        subphases: [
+            {
+                code: '51',
+                label: 'Execution Design',
+                documents: [
+                    'Detailed architectural execution drawings',
+                    'Structural execution drawings',
+                    'Coordinated MEP installation drawings',
+                    'Construction details and technical specifications',
+                    'Material and finish schedules',
+                    'Contractor shop drawings, where applicable',
+                    'Approved samples',
+                    'Construction contracts',
+                    'Definitive construction programme',
+                    'Payment schedule',
+                ],
+            },
+            {
+                code: '52',
+                label: 'Construction Execution',
+                documents: [
+                    'Approved construction drawings',
+                    'Building permit and applicable conditions',
+                    'Site meeting minutes',
+                    'Construction diary and progress reports',
+                    'Inspection and quality-control records',
+                    'Material approval records',
+                    'Variation orders and revised drawings',
+                    'Contractor invoices and payment certificates',
+                    'Updated cost reports',
+                    'Updated construction schedule',
+                    'Measurement records',
+                ],
+            },
+            {
+                code: '53',
+                label: 'Commissioning and Completion',
+                documents: [
+                    'As-built / record drawings',
+                    'Commissioning and testing reports',
+                    'Inspection and acceptance certificates',
+                    'Handover protocols (procès-verbaux de réception)',
+                    'Defects / snagging lists',
+                    'Operation and maintenance manuals',
+                    'Equipment documentation',
+                    'Warranties and guarantees',
+                    'Final cost statement (décompte final)',
+                    'Complete building handover dossier',
+                ],
+            },
         ],
     },
 ];
 
-/** Shows project views in one local-only, tabbed homepage preview. */
+// Follow the property sales lifecycle independently from architectural construction phases.
+const propertySteps = [
+    {
+        label: 'Valuation',
+        description: 'Assess the property and agree on an asking price.',
+        documents: [
+            { name: 'Property valuation', available: true },
+            { name: 'Agency agreement', available: true },
+        ],
+    },
+    {
+        label: 'Listing',
+        description: 'Publish the listing with photos and property details.',
+        documents: [
+            { name: 'Listing brochure', available: true },
+            { name: 'Floor plans', available: true },
+        ],
+    },
+    {
+        label: 'Viewings',
+        description: 'Arrange visits and collect buyer feedback.',
+        documents: [
+            { name: 'Viewing schedule', available: true },
+            { name: 'Buyer feedback', available: false },
+        ],
+    },
+    {
+        label: 'Offer and negotiation',
+        description: 'Review offers and agree on the terms of sale.',
+        documents: [
+            { name: 'Purchase offer', available: true },
+            { name: 'Reservation agreement', available: false },
+        ],
+    },
+    {
+        label: 'Closing',
+        description: 'Complete the sale and hand over the keys.',
+        documents: [
+            { name: 'Sale contract', available: true },
+            { name: 'Handover report', available: false },
+        ],
+    },
+];
+
+// Track competition submissions rather than construction milestones.
+const competitionSteps = [
+    {
+        label: 'Brief and research',
+        description: 'Review the competition brief and site constraints.',
+        documents: [
+            { name: 'Competition brief', available: true },
+            { name: 'Site analysis', available: true },
+        ],
+    },
+    {
+        label: 'Concept design',
+        description: 'Develop the proposal and prepare presentation material.',
+        documents: [
+            { name: 'Concept drawings', available: true },
+            { name: 'Presentation boards', available: false },
+        ],
+    },
+    {
+        label: 'Submission',
+        description: 'Submit the proposal for jury review.',
+        documents: [
+            { name: 'Submission package', available: false },
+            { name: 'Jury feedback', available: false },
+        ],
+    },
+];
+
+/** Shows three local organization views in an interactive homepage preview. */
 export function Showcase() {
-    // Retain settings when switching between the sample views.
-    const [tab, setTab] = useState('cards');
+    // Keep navigation within the preview without changing the homepage URL.
+    const [navigation, setNavigation] = useState<
+        { page: 'organizations' } | { page: 'solutions'; organizationId: string }
+    >({ page: 'organizations' });
+
+    const [tab, setTab] = useState('');
     const [projectId, setProjectId] = useState<number | null>(null);
     const [phaseIndex, setPhaseIndex] = useState<number | null>(null);
-    const [menuHash, setMenuHash] = useState('');
-    const [company, setCompany] = useState('Acme Ink');
-    const [currency, setCurrency] = useState('CHF');
-    const [approvalRequired, setApprovalRequired] = useState(true);
-    const [approvalThreshold, setApprovalThreshold] = useState(1000);
-    const [pendingNotifications, setPendingNotifications] = useState(true);
-    const [approvedNotifications, setApprovedNotifications] = useState(false);
+    const [subphaseCode, setSubphaseCode] = useState<string | null>(null);
+    const [profileOpen, setProfileOpen] = useState(false);
 
-    // Resolve the visible tab and optional record details from their stable identifiers.
-    const activeTab = showcaseTabs.find((item) => item.id === tab) ?? showcaseTabs[0];
-    const activeProject = projects.find((project) => project.id === projectId);
-    const activePhase = phaseIndex === null ? undefined : projectSteps[phaseIndex];
+    // Resolve each organization's records and lifecycle before opening optional details.
+    const organization =
+        navigation.page === 'organizations'
+            ? undefined
+            : organizations.find((item) => item.id === navigation.organizationId);
+
+    const activeTab = organization?.tabs.find((item) => item === tab) ?? organization?.tabs[0] ?? 'Organizations';
+
+    const records =
+        organization?.id === 'real-estate'
+            ? properties.filter((property) => property.category === activeTab)
+            : activeTab === 'Competitions'
+              ? competitions
+              : projects;
+
+    const steps =
+        organization?.id === 'real-estate'
+            ? propertySteps
+            : activeTab === 'Competitions'
+              ? competitionSteps
+              : projectSteps;
+
+    const activeProject = records.find((project) => project.id === projectId);
+    const activePhase = activeProject ? steps[phaseIndex ?? 0] : undefined;
+
+    const activeSubphase =
+        activePhase && 'subphases' in activePhase
+            ? activePhase.subphases.find((subphase) => subphase.code === subphaseCode)
+            : undefined;
+
+    // Project Views have their own navigation, independent of organization categories.
+    const projectTabs = steps.map((phase, index) => ({
+        id: String(index),
+        label: `${index + 1}. ${phase.label}`,
+        icon: ListChecks,
+    }));
+
+    const projectView = String(phaseIndex ?? 0);
 
     // Keep the preview window's size while scaling its contents to 80%.
     return (
@@ -217,7 +548,7 @@ export function Showcase() {
                             padding={0}
                             isScrollable={false}
                             role="region"
-                            label="Interactive project showcase"
+                            label="Interactive organization showcase"
                         >
                             <PlatformFrame
                                 height="fill"
@@ -225,91 +556,306 @@ export function Showcase() {
                                 breadcrumb={
                                     <Breadcrumbs separator=">" variant="supporting" label="Showcase breadcrumb">
                                         <BreadcrumbItem
-                                            href="#showcase-cards"
+                                            href="#showcase-organizations"
                                             onClick={(event) => {
-                                                // Return to the showcase's first tab without leaving the homepage.
+                                                // Return to the organization list without leaving the homepage.
                                                 event.preventDefault();
-                                                setTab('cards');
+                                                setNavigation({ page: 'organizations' });
+                                                setTab('');
                                                 setProjectId(null);
                                                 setPhaseIndex(null);
+                                                setSubphaseCode(null);
                                             }}
                                         >
                                             <Wordmark />
                                         </BreadcrumbItem>
-                                        <BreadcrumbItem
-                                            href={activeProject ? `#showcase-${activeTab.id}` : undefined}
-                                            isCurrent={!activeProject}
-                                            onClick={(event) => {
-                                                // Return from record details to the current showcase tab.
-                                                event.preventDefault();
-                                                setProjectId(null);
-                                                setPhaseIndex(null);
-                                            }}
-                                        >
-                                            Example Showcase
-                                        </BreadcrumbItem>
+                                        {organization && (
+                                            <BreadcrumbItem
+                                                href={
+                                                    activeProject ? `#showcase-${organization.id}-solutions` : undefined
+                                                }
+                                                isCurrent={!activeProject}
+                                                onClick={(event) => {
+                                                    // Return from record details to the organization's overview.
+                                                    event.preventDefault();
+                                                    setNavigation({
+                                                        page: 'solutions',
+                                                        organizationId: organization.id,
+                                                    });
+                                                    setProjectId(null);
+                                                    setPhaseIndex(null);
+                                                    setSubphaseCode(null);
+                                                }}
+                                            >
+                                                {organization.name}
+                                            </BreadcrumbItem>
+                                        )}
                                         {activeProject && (
                                             <BreadcrumbItem
                                                 href={activePhase ? `#showcase-project-${activeProject.id}` : undefined}
                                                 isCurrent={!activePhase}
                                                 onClick={(event) => {
-                                                    // Return from a phase subview to this project's construction steps.
+                                                    // Return to the project's first phase.
                                                     event.preventDefault();
                                                     setPhaseIndex(null);
+                                                    setSubphaseCode(null);
                                                 }}
                                             >
                                                 {activeProject.name}
                                             </BreadcrumbItem>
                                         )}
-                                        {activePhase && <BreadcrumbItem isCurrent>{activePhase.label}</BreadcrumbItem>}
+                                        {activePhase && (
+                                            <BreadcrumbItem
+                                                href={activeSubphase ? `#showcase-phase-${phaseIndex}` : undefined}
+                                                isCurrent={!activeSubphase}
+                                                onClick={(event) => {
+                                                    // Return from required documents to the parent phase's sub-phases.
+                                                    event.preventDefault();
+                                                    setSubphaseCode(null);
+                                                }}
+                                            >
+                                                {activePhase.label}
+                                            </BreadcrumbItem>
+                                        )}
+                                        {activeSubphase && (
+                                            <BreadcrumbItem isCurrent>
+                                                {activeSubphase.code} – {activeSubphase.label}
+                                            </BreadcrumbItem>
+                                        )}
                                     </Breadcrumbs>
                                 }
-                                action={<Avatar name="Example user" src="/favicon.svg?v=2" />}
+                                action={
+                                    <Popover
+                                        alignment="end"
+                                        isOpen={profileOpen}
+                                        label="Anna Keller"
+                                        onOpenChange={setProfileOpen}
+                                        width={280}
+                                        content={
+                                            <Stack gap={2} width="100%">
+                                                <Item
+                                                    description="anna.keller@example.com"
+                                                    label="Anna Keller"
+                                                    startContent={<Avatar name="Anna Keller" />}
+                                                />
+                                                <Divider />
+                                                <List
+                                                    density="compact"
+                                                    header={
+                                                        <Text color="secondary" type="label">
+                                                            Account
+                                                        </Text>
+                                                    }
+                                                >
+                                                    <ListItem
+                                                        label="Organizations"
+                                                        href="#showcase-user-Organizations"
+                                                        endContent={
+                                                            <ChevronRight
+                                                                aria-hidden="true"
+                                                                className="text-secondary"
+                                                                size={12}
+                                                            />
+                                                        }
+                                                        startContent={
+                                                            <Building2
+                                                                aria-hidden="true"
+                                                                className="text-secondary"
+                                                                size={16}
+                                                            />
+                                                        }
+                                                        onClick={(event) => {
+                                                            // Keep profile navigation inside the local account preview.
+                                                            event.preventDefault();
+                                                            setNavigation({ page: 'organizations' });
+                                                            setTab('');
+                                                            setProjectId(null);
+                                                            setPhaseIndex(null);
+                                                            setSubphaseCode(null);
+                                                            setProfileOpen(false);
+                                                        }}
+                                                    />
+                                                    <ListItem
+                                                        href="/docs/"
+                                                        label="Documentation"
+                                                        target="_blank"
+                                                        startContent={
+                                                            <BookOpen
+                                                                aria-hidden="true"
+                                                                className="text-secondary"
+                                                                size={16}
+                                                            />
+                                                        }
+                                                        endContent={
+                                                            <ExternalLink
+                                                                aria-hidden="true"
+                                                                className="text-secondary"
+                                                                size={12}
+                                                            />
+                                                        }
+                                                        onClickCapture={() => setProfileOpen(false)}
+                                                    />
+                                                </List>
+                                                <Button
+                                                    label="Sign out"
+                                                    variant="destructive"
+                                                    isDisabled
+                                                    tooltip="This preview is not signed in."
+                                                />
+                                            </Stack>
+                                        }
+                                    >
+                                        <IconButton
+                                            icon={<Avatar name="Anna Keller" />}
+                                            label="Anna Keller"
+                                            variant="ghost"
+                                        />
+                                    </Popover>
+                                }
                                 navigation={
                                     <TabList
-                                        value={activeTab.id}
+                                        value={activeProject ? projectView : activeTab}
                                         onChange={(value) => {
-                                            // Open each tab at its main view without discarding local edits.
-                                            setTab(value);
-                                            setProjectId(null);
-                                            setPhaseIndex(null);
+                                            // Keep project View navigation separate from organization categories.
+                                            if (activeProject) {
+                                                setPhaseIndex(Number(value));
+                                            } else {
+                                                setTab(value);
+                                                setPhaseIndex(null);
+                                            }
+
+                                            setSubphaseCode(null);
                                         }}
                                         role="tablist"
-                                        aria-label="Example Showcase views"
-                                        className="relative z-20"
+                                        aria-label={
+                                            activeProject
+                                                ? `${activeProject.name} Views`
+                                                : organization
+                                                  ? `${organization.name} Solution categories`
+                                                  : 'Section navigation'
+                                        }
                                         size="sm"
                                     >
-                                        {showcaseTabs.map((item) => (
+                                        {activeProject ? (
+                                            projectTabs.map((item) => (
+                                                <Tab
+                                                    key={item.id}
+                                                    value={item.id}
+                                                    label={item.label}
+                                                    panelId={`showcase-project-${activeProject.id}-${item.id}`}
+                                                    icon={<item.icon aria-hidden="true" size={16} />}
+                                                />
+                                            ))
+                                        ) : organization ? (
+                                            organization.tabs.map((item) => (
+                                                <Tab
+                                                    key={item}
+                                                    value={item}
+                                                    label={item}
+                                                    panelId={`showcase-${organization.id}-${item.replaceAll(' ', '-')}`}
+                                                    icon={
+                                                        item === 'Competitions' ? (
+                                                            <Trophy aria-hidden="true" size={16} />
+                                                        ) : organization.id === 'finance' ? (
+                                                            <ChartNoAxesCombined aria-hidden="true" size={16} />
+                                                        ) : item === 'Projects' ? (
+                                                            <Folder aria-hidden="true" size={16} />
+                                                        ) : (
+                                                            <Building2 aria-hidden="true" size={16} />
+                                                        )
+                                                    }
+                                                />
+                                            ))
+                                        ) : (
                                             <Tab
-                                                key={item.id}
-                                                value={item.id}
-                                                label={item.label}
-                                                panelId={`showcase-${item.id}`}
-                                                icon={
-                                                    item.id === 'menu' ? (
-                                                        <Settings aria-hidden="true" size={16} />
-                                                    ) : (
-                                                        <FileText aria-hidden="true" size={16} />
-                                                    )
-                                                }
+                                                value="Organizations"
+                                                label="Organizations"
+                                                panelId="showcase-user-Organizations"
+                                                icon={<Building2 aria-hidden="true" size={16} />}
                                             />
-                                        ))}
+                                        )}
                                     </TabList>
                                 }
                             >
-                                <PageContainer minHeight="100%" paddingBlock={2} className="px-8 md:px-16">
+                                <PageContainer minHeight="100%" gap={8} padding={2}>
                                     <Stack
-                                        id={`showcase-${activeTab.id}`}
-                                        role="tabpanel"
-                                        aria-label={activeTab.label}
-                                        tabIndex={0}
                                         gap={4}
+                                        id={
+                                            activeProject
+                                                ? `showcase-project-${activeProject.id}-${projectView}`
+                                                : `showcase-${organization?.id ?? 'user'}-${activeTab.replaceAll(' ', '-')}`
+                                        }
+                                        role="tabpanel"
+                                        aria-label={
+                                            activeProject
+                                                ? projectTabs.find((item) => item.id === projectView)?.label
+                                                : activeTab
+                                        }
+                                        tabIndex={0}
                                     >
-                                        {activeProject ? (
+                                        {!organization ? (
+                                            <>
+                                                <Stack
+                                                    direction="horizontal"
+                                                    justify="between"
+                                                    align="center"
+                                                    wrap="wrap"
+                                                    className="min-h-12"
+                                                >
+                                                    <Heading level={1}>Organizations</Heading>
+                                                    <Button
+                                                        label="Create Organization"
+                                                        isDisabled
+                                                        tooltip="Organization creation is unavailable in this preview."
+                                                    />
+                                                </Stack>
+                                                <Table
+                                                    data={[...organizations]}
+                                                    idKey="id"
+                                                    density="compact"
+                                                    hasHover
+                                                    columns={[
+                                                        {
+                                                            key: 'name',
+                                                            header: 'Name',
+                                                            width: proportional(1),
+                                                            renderCell: (item) => (
+                                                                <Stack direction="horizontal" gap={3} align="center">
+                                                                    <Avatar kind="organization" name={item.name} />
+                                                                    <Stack gap={0} align="start">
+                                                                        <Link
+                                                                            href={`#showcase-${item.id}-solutions`}
+                                                                            onClick={(event) => {
+                                                                                // Open this organization's Solutions without navigating away.
+                                                                                event.preventDefault();
+                                                                                setNavigation({
+                                                                                    page: 'solutions',
+                                                                                    organizationId: item.id,
+                                                                                });
+                                                                                setTab('');
+                                                                            }}
+                                                                        >
+                                                                            {item.name}
+                                                                        </Link>
+                                                                        <Text type="supporting">
+                                                                            {item.description}
+                                                                        </Text>
+                                                                    </Stack>
+                                                                </Stack>
+                                                            ),
+                                                        },
+                                                    ]}
+                                                />
+                                            </>
+                                        ) : activeProject ? (
                                             <Stack gap={4}>
                                                 {activePhase ? (
                                                     <Stack gap={0}>
-                                                        <Heading level={2}>{activePhase.label}</Heading>
+                                                        <Heading level={2}>
+                                                            {activeSubphase
+                                                                ? `${activeSubphase.code} – ${activeSubphase.label}`
+                                                                : activePhase.label}
+                                                        </Heading>
                                                         <Text type="supporting">{activePhase.description}</Text>
                                                     </Stack>
                                                 ) : (
@@ -333,7 +879,48 @@ export function Showcase() {
                                                     content={
                                                         <LayoutContent isScrollable={false}>
                                                             <Stack paddingInlineEnd={8}>
-                                                                {activePhase ? (
+                                                                {activeSubphase ? (
+                                                                    <Table
+                                                                        data={activeSubphase.documents.map((name) => ({
+                                                                            name,
+                                                                        }))}
+                                                                        idKey="name"
+                                                                        density="compact"
+                                                                        columns={[
+                                                                            {
+                                                                                key: 'name',
+                                                                                header: 'Required document',
+                                                                                width: proportional(1),
+                                                                            },
+                                                                        ]}
+                                                                    />
+                                                                ) : activePhase && 'subphases' in activePhase ? (
+                                                                    <Stepper
+                                                                        activeStep={0}
+                                                                        orientation="vertical"
+                                                                        density="compact"
+                                                                        label={`${activePhase.label} sub-phases`}
+                                                                        onStepClick={(index) => {
+                                                                            // Open the required documents for the selected SIA sub-phase.
+                                                                            setSubphaseCode(
+                                                                                activePhase.subphases[index]?.code ??
+                                                                                    null
+                                                                            );
+                                                                        }}
+                                                                    >
+                                                                        {activePhase.subphases.map(
+                                                                            (subphase, index) => (
+                                                                                <Step
+                                                                                    key={subphase.code}
+                                                                                    step={index}
+                                                                                    indicator={subphase.code}
+                                                                                    label={subphase.label}
+                                                                                    description={`${subphase.documents.length} required documents`}
+                                                                                />
+                                                                            )
+                                                                        )}
+                                                                    </Stepper>
+                                                                ) : activePhase ? (
                                                                     <Table
                                                                         data={activePhase.documents}
                                                                         idKey="name"
@@ -355,28 +942,7 @@ export function Showcase() {
                                                                             },
                                                                         ]}
                                                                     />
-                                                                ) : (
-                                                                    <Stepper
-                                                                        activeStep={activeProject.activeStep}
-                                                                        onStepClick={setPhaseIndex}
-                                                                        orientation="vertical"
-                                                                        density="compact"
-                                                                        label={`${activeProject.name} construction phases`}
-                                                                    >
-                                                                        {projectSteps.map((step, index) => (
-                                                                            <Step
-                                                                                key={step.label}
-                                                                                step={index}
-                                                                                label={step.label}
-                                                                                description={step.description}
-                                                                                indicator={String(index + 1).padStart(
-                                                                                    2,
-                                                                                    '0'
-                                                                                )}
-                                                                            />
-                                                                        ))}
-                                                                    </Stepper>
-                                                                )}
+                                                                ) : null}
                                                             </Stack>
                                                         </LayoutContent>
                                                     }
@@ -385,12 +951,20 @@ export function Showcase() {
                                                             width="30%"
                                                             isScrollable={false}
                                                             role="complementary"
-                                                            label="Project details"
+                                                            label={
+                                                                organization.id === 'real-estate'
+                                                                    ? 'Property details'
+                                                                    : 'Project details'
+                                                            }
                                                         >
                                                             <Stack gap={2}>
                                                                 <Badge label={activeProject.status} />
                                                                 <Stack gap={2}>
-                                                                    <Text type="supporting">Project owner</Text>
+                                                                    <Text type="supporting">
+                                                                        {organization.id === 'real-estate'
+                                                                            ? 'Listing agent'
+                                                                            : 'Project owner'}
+                                                                    </Text>
                                                                     <Stack
                                                                         direction="horizontal"
                                                                         align="center"
@@ -412,206 +986,169 @@ export function Showcase() {
                                             </Stack>
                                         ) : (
                                             <>
-                                                <Stack gap={0}>
-                                                    <Heading level={2}>
-                                                        {activeTab.id === 'cards'
-                                                            ? 'Projects'
-                                                            : `Example ${activeTab.label} View`}
-                                                    </Heading>
-                                                    <Text color="secondary">{activeTab.description}</Text>
+                                                <Stack
+                                                    direction="horizontal"
+                                                    justify="between"
+                                                    align="center"
+                                                    wrap="wrap"
+                                                    className="min-h-12"
+                                                >
+                                                    <Heading level={1}>{activeTab}</Heading>
                                                 </Stack>
-                                                {activeTab.id === 'cards' && (
-                                                    <Grid columns={4} gap={2} align="stretch">
-                                                        {projects.map((project) => (
+                                                {organization.id === 'real-estate' && (
+                                                    <Grid columns={{ minWidth: 240, max: 3 }} gap={4} align="stretch">
+                                                        {records.map((property) => (
                                                             <Card
-                                                                key={project.id}
-                                                                label={project.name}
-                                                                variant="muted"
+                                                                key={property.id}
+                                                                label={property.name}
                                                                 padding={0}
                                                                 height="100%"
                                                                 isClipped
                                                                 onClick={() => {
-                                                                    // Open the project's overview rather than a previously selected phase.
-                                                                    setProjectId(project.id);
+                                                                    // Open the property's Solution from either listing category.
+                                                                    setProjectId(property.id);
                                                                     setPhaseIndex(null);
+                                                                    setSubphaseCode(null);
                                                                 }}
                                                             >
                                                                 <Stack gap={0} height="100%">
-                                                                    <Thumbnail
-                                                                        src={`/images/showcase/${project.photo}.jpg`}
-                                                                        alt={`${project.name} building`}
-                                                                        className="w-full! [&>div]:aspect-video! [&>div]:rounded-none!"
+                                                                    <img
+                                                                        src={`/images/showcase/${property.photo}.jpg`}
+                                                                        alt={`${property.name} building`}
+                                                                        className="aspect-video w-full object-cover"
+                                                                        loading="lazy"
                                                                     />
-                                                                    <Stack gap={4} padding={3} className="flex-1">
-                                                                        <Stack gap={0} hAlign="start">
-                                                                            <Heading level={3} maxLines={1}>
-                                                                                {project.name}
-                                                                            </Heading>
+                                                                    <Stack gap={3} padding={4}>
+                                                                        <Stack gap={1} align="start">
+                                                                            <Heading level={3}>{property.name}</Heading>
                                                                             <Badge
-                                                                                label={project.status}
+                                                                                label={property.status}
                                                                                 variant={
-                                                                                    project.status === 'Completed'
+                                                                                    property.status === 'Sold'
                                                                                         ? 'success'
-                                                                                        : project.status ===
-                                                                                            'In progress'
+                                                                                        : property.status ===
+                                                                                            'Under offer'
                                                                                           ? 'warning'
                                                                                           : 'neutral'
                                                                                 }
                                                                             />
                                                                         </Stack>
-                                                                        <Text
-                                                                            type="supporting"
-                                                                            maxLines={2}
-                                                                            className="mt-auto"
-                                                                        >
-                                                                            {project.description}
+                                                                        <Text type="supporting">
+                                                                            {property.description}
                                                                         </Text>
+                                                                        <Stack
+                                                                            direction="horizontal"
+                                                                            gap={2}
+                                                                            align="center"
+                                                                        >
+                                                                            <Avatar name={property.owner} size="sm" />
+                                                                            <Text type="supporting">
+                                                                                {property.owner}
+                                                                            </Text>
+                                                                        </Stack>
                                                                     </Stack>
                                                                 </Stack>
                                                             </Card>
                                                         ))}
                                                     </Grid>
                                                 )}
-                                                {activeTab.id === 'menu' && (
-                                                    <MenuNavigationContext
-                                                        value={{
-                                                            hash: menuHash,
-                                                            select: (id) => setMenuHash(`#${id}`),
-                                                        }}
-                                                    >
-                                                        <Menu>
-                                                            <MenuSection title="Invoices">
-                                                                <MenuItem label="General">
-                                                                    <Stack gap={4} maxWidth={640}>
-                                                                        <Heading level={3}>General</Heading>
-                                                                        <TextInput
-                                                                            label="Company name"
-                                                                            value={company}
-                                                                            onChange={setCompany}
-                                                                        />
-                                                                        <Selector
-                                                                            label="Default currency"
-                                                                            value={currency}
-                                                                            onChange={setCurrency}
-                                                                            options={['CHF', 'EUR', 'USD']}
-                                                                        />
-                                                                    </Stack>
-                                                                </MenuItem>
-                                                                <MenuItem label="Approvals">
-                                                                    <Stack gap={4} maxWidth={640}>
-                                                                        <Heading level={3}>Approvals</Heading>
-                                                                        <Switch
-                                                                            label="Require invoice approval"
-                                                                            value={approvalRequired}
-                                                                            onChange={setApprovalRequired}
-                                                                        />
-                                                                        <NumberInput
-                                                                            label={`Approval threshold (${currency})`}
-                                                                            value={approvalThreshold}
-                                                                            onChange={setApprovalThreshold}
-                                                                            min={0}
-                                                                            disabled={!approvalRequired}
-                                                                        />
-                                                                    </Stack>
-                                                                </MenuItem>
-                                                                <MenuItem label="Notifications">
-                                                                    <Stack gap={4} maxWidth={640}>
-                                                                        <Heading level={3}>Notifications</Heading>
-                                                                        <Switch
-                                                                            label="Invoice awaiting approval"
-                                                                            value={pendingNotifications}
-                                                                            onChange={setPendingNotifications}
-                                                                        />
-                                                                        <Switch
-                                                                            label="Invoice approved"
-                                                                            value={approvedNotifications}
-                                                                            onChange={setApprovedNotifications}
-                                                                        />
-                                                                    </Stack>
-                                                                </MenuItem>
-                                                            </MenuSection>
-                                                        </Menu>
-                                                    </MenuNavigationContext>
-                                                )}
-                                                {activeTab.id === 'table' && (
+                                                {organization.id === 'architecture' && (
                                                     <Table
-                                                        data={projects}
+                                                        data={records}
                                                         idKey="id"
                                                         density="compact"
                                                         hasHover
                                                         columns={[
                                                             {
                                                                 key: 'name',
-                                                                header: 'Project',
-                                                                width: proportional(2),
+                                                                header: 'Solution',
+                                                                width: proportional(1),
                                                                 renderCell: (project) => (
-                                                                    <Stack
-                                                                        direction="horizontal"
-                                                                        align="center"
-                                                                        gap={2}
-                                                                    >
-                                                                        <Thumbnail
-                                                                            src={`/images/showcase/${project.photo}.jpg`}
-                                                                            alt={`${project.name} building`}
-                                                                            label={project.name}
-                                                                            className="w-8!"
-                                                                        />
-                                                                        <Stack gap={0}>
-                                                                            <Stack
-                                                                                direction="horizontal"
-                                                                                align="center"
-                                                                                gap={2}
-                                                                                wrap="wrap"
-                                                                            >
-                                                                                <Link
-                                                                                    href={`#showcase-project-${project.id}`}
-                                                                                    onClick={(event) => {
-                                                                                        // Open the same project detail as the gallery without leaving the homepage.
-                                                                                        event.preventDefault();
-                                                                                        setProjectId(project.id);
-                                                                                        setPhaseIndex(null);
-                                                                                    }}
-                                                                                >
-                                                                                    {project.name}
-                                                                                </Link>
-                                                                                <Badge
-                                                                                    label={project.status}
-                                                                                    variant={
-                                                                                        project.status === 'Completed'
-                                                                                            ? 'success'
-                                                                                            : project.status ===
-                                                                                                'In progress'
-                                                                                              ? 'warning'
-                                                                                              : 'neutral'
-                                                                                    }
-                                                                                />
-                                                                            </Stack>
-                                                                            <Text type="supporting">
-                                                                                {project.description}
-                                                                            </Text>
-                                                                        </Stack>
+                                                                    <Stack gap={0}>
+                                                                        <Link
+                                                                            href={`#showcase-project-${project.id}`}
+                                                                            onClick={(event) => {
+                                                                                // Open each project as its own Solution without leaving the preview.
+                                                                                event.preventDefault();
+                                                                                setProjectId(project.id);
+                                                                                setPhaseIndex(null);
+                                                                                setSubphaseCode(null);
+                                                                            }}
+                                                                        >
+                                                                            {project.name}
+                                                                        </Link>
+                                                                        <Text type="supporting">
+                                                                            {project.description}
+                                                                        </Text>
+                                                                    </Stack>
+                                                                ),
+                                                            },
+                                                        ]}
+                                                    />
+                                                )}
+                                                {organization.id === 'finance' && activeTab === 'Fixed Income' && (
+                                                    <Table
+                                                        data={companies}
+                                                        idKey="name"
+                                                        density="compact"
+                                                        hasHover
+                                                        columns={[
+                                                            { key: 'name', header: 'Company', width: proportional(2) },
+                                                            {
+                                                                key: 'industry',
+                                                                header: 'Industry',
+                                                                width: proportional(1),
+                                                            },
+                                                            {
+                                                                key: 'country',
+                                                                header: 'Country',
+                                                                width: proportional(1),
+                                                            },
+                                                        ]}
+                                                    />
+                                                )}
+                                                {organization.id === 'finance' && activeTab !== 'Fixed Income' && (
+                                                    <Table
+                                                        data={activeTab === 'ETFs' ? funds : stocks}
+                                                        idKey="symbol"
+                                                        density="compact"
+                                                        hasHover
+                                                        columns={[
+                                                            {
+                                                                key: 'symbol',
+                                                                header: activeTab === 'ETFs' ? 'Fund' : 'Stock',
+                                                                width: proportional(2),
+                                                                renderCell: (stock) => (
+                                                                    <Stack gap={0}>
+                                                                        <Text>{stock.symbol}</Text>
+                                                                        <Text type="supporting">{stock.name}</Text>
                                                                     </Stack>
                                                                 ),
                                                             },
                                                             {
-                                                                key: 'owner',
-                                                                header: 'Project owner',
-                                                                width: proportional(2),
-                                                                renderCell: (project) => (
-                                                                    <Stack
-                                                                        direction="horizontal"
-                                                                        align="center"
-                                                                        gap={2}
-                                                                    >
-                                                                        <Avatar name={project.owner} size="sm" />
-                                                                        <Stack gap={0}>
-                                                                            <Text>{project.owner}</Text>
-                                                                            <Text type="supporting">
-                                                                                {project.ownerEmail}
-                                                                            </Text>
-                                                                        </Stack>
-                                                                    </Stack>
+                                                                key: 'price',
+                                                                header: 'Price (USD)',
+                                                                align: 'end',
+                                                                renderCell: (stock) => usd.format(stock.price),
+                                                            },
+                                                            {
+                                                                key: 'change',
+                                                                header: 'Daily change',
+                                                                align: 'end',
+                                                                renderCell: (stock) => (
+                                                                    <Text>
+                                                                        {stock.change > 0 ? '+' : ''}
+                                                                        {stock.change.toFixed(2)}%
+                                                                    </Text>
                                                                 ),
+                                                            },
+                                                            { key: 'shares', header: 'Shares', align: 'end' },
+                                                            {
+                                                                key: 'value',
+                                                                header: 'Value (USD)',
+                                                                align: 'end',
+                                                                renderCell: (stock) =>
+                                                                    usd.format(stock.price * stock.shares),
                                                             },
                                                         ]}
                                                     />
