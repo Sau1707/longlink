@@ -1,5 +1,5 @@
 version = 1
-revision = 3
+revision = 5
 requires-python = ">=3.12"
 resolution-markers = [
     "python_full_version >= '3.14'",
@@ -1357,6 +1357,7 @@ dependencies = [
     { name = "alembic" },
     { name = "anyio" },
     { name = "asyncpg" },
+    { name = "certifi" },
     { name = "cyclopts" },
     { name = "email-validator" },
     { name = "fastapi" },
@@ -1393,6 +1394,7 @@ requires-dist = [
     { name = "alembic", specifier = ">=1.19.1" },
     { name = "anyio", specifier = ">=4.14.2" },
     { name = "asyncpg", specifier = ">=0.31.0" },
+    { name = "certifi", specifier = ">=2026.10.19" },
     { name = "cyclopts", specifier = ">=5.0,<6" },
     { name = "email-validator", specifier = ">=2.3.0" },
     { name = "fastapi", specifier = ">=0.141.1" },
