@@ -2189,7 +2189,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/UserSummary"
+                  "$ref": "#/components/schemas/CurrentUser"
                 }
               }
             }
@@ -2244,7 +2244,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/UserSummary"
+                  "$ref": "#/components/schemas/CurrentUser"
                 }
               }
             }
@@ -4287,6 +4287,77 @@
         "title": "Consent",
         "description": "Describe the actual client callback and selected Solution to the user."
       },
+      "CurrentUser": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "title": "Email"
+          },
+          "avatar": {
+            "type": "string",
+            "title": "Avatar"
+          },
+          "administrator": {
+            "type": "boolean",
+            "title": "Administrator"
+          },
+          "theme": {
+            "type": "string",
+            "enum": [
+              "system",
+              "light",
+              "dark"
+            ],
+            "title": "Theme"
+          },
+          "accent": {
+            "type": "string",
+            "enum": [
+              "neutral",
+              "red",
+              "orange",
+              "amber",
+              "yellow",
+              "lime",
+              "green",
+              "emerald",
+              "teal",
+              "cyan",
+              "sky",
+              "blue",
+              "indigo",
+              "violet",
+              "purple",
+              "fuchsia",
+              "pink",
+              "rose"
+            ],
+            "title": "Accent"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "email",
+          "avatar",
+          "administrator",
+          "theme",
+          "accent"
+        ],
+        "title": "CurrentUser",
+        "description": "Include personal preferences only in the account's own profile."
+      },
       "EmailPayload": {
         "properties": {
           "email": {
@@ -6009,6 +6080,53 @@
               }
             ],
             "title": "Avatar"
+          },
+          "theme": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "system",
+                  "light",
+                  "dark"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Theme"
+          },
+          "accent": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "neutral",
+                  "red",
+                  "orange",
+                  "amber",
+                  "yellow",
+                  "lime",
+                  "green",
+                  "emerald",
+                  "teal",
+                  "cyan",
+                  "sky",
+                  "blue",
+                  "indigo",
+                  "violet",
+                  "purple",
+                  "fuchsia",
+                  "pink",
+                  "rose"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Accent"
           }
         },
         "type": "object",

@@ -16,6 +16,7 @@ import { LinkNavigationContext } from '@/components/ui/Link';
 import { MenuNavigationContext } from '@/components/ui/Menu';
 import { FileRequestContext } from '@/components/ui/preview';
 import { Layout, LayoutContent } from '@astryxdesign/core/Layout';
+import { appearanceSchema, type Appearance } from '@/lib/appearance';
 import { QueryClient, QueryClientProvider, QueryErrorResetBoundary, useSuspenseQuery } from '@tanstack/react-query';
 import {
     requestSchema,
@@ -29,6 +30,8 @@ import {
     type ViewData,
     iconSchema,
     iconDataSchema,
+    appearanceMessageSchema,
+    type AppearanceMessage,
 } from './protocol';
 import '../index.css';
 
@@ -200,6 +203,7 @@ const initialization = z
         session: z.string(),
         source: z.string(),
         params: parametersSchema,
+        appearance: appearanceSchema,
         navigationBaseUrl: z.url({ protocol: /^https?$/ }),
     })
     .strict();
@@ -212,7 +216,16 @@ function initialize(event: MessageEvent<unknown>): void {
     if (!parsed.success || parsed.data.session !== session) return;
     window.removeEventListener('message', initialize);
     port = event.ports[0];
-    port.onmessage = (reply: MessageEvent<ViewReply>) => {
+    port.onmessage = (reply: MessageEvent<ViewReply | AppearanceMessage>) => {
+        // Appearance updates are separate from replies to pending Solution operations.
+        if ('type' in reply.data) {
+            const appearance = appearanceMessageSchema.safeParse(reply.data);
+
+            if (appearance.success) renderAppearance(appearance.data.appearance);
+
+            return;
+        }
+
         const waiter = pending.get(reply.data.id);
 
         if (!waiter) return;
@@ -377,11 +390,18 @@ function initialize(event: MessageEvent<unknown>): void {
         );
     }
 
-    root.render(
-        <Theme theme={stoneTheme} mode="dark">
-            {content}
-        </Theme>
-    );
+    /** Reconciles only the theme provider so the authored component keeps its state. */
+    function renderAppearance(appearance: Appearance) {
+        document.documentElement.dataset.accent = appearance.accent;
+        root.render(
+            <Theme theme={stoneTheme} mode={appearance.theme}>
+                {content}
+            </Theme>
+        );
+    }
+
+    // Start from the handshake, then receive live preferences over the private port.
+    renderAppearance(parsed.data.appearance);
 }
 
 // A fresh opaque-origin frame cannot read parent state, storage, or cookies.

@@ -8,6 +8,7 @@ import { Stack } from '@astryxdesign/core/Stack';
 import { Form, FormStep } from '@/components/Form';
 import { Heading } from '@astryxdesign/core/Heading';
 import { TextInput } from '@/components/ui/TextInput';
+import { Illustration } from '@/components/Illustration';
 import * as schemas from '@/lib/generated/platform-api-v1/zod.gen';
 
 /** Owns one creation attempt, shared by the organization list and settings pages. */
@@ -78,7 +79,7 @@ export default function CreateSolution({
                 <FormStep label="Image">
                     <Stack gap={8}>
                         <Stack gap={3} align="center">
-                            <img
+                            <Illustration
                                 src="/images/solution.png"
                                 alt=""
                                 className="size-20 object-contain"
@@ -118,7 +119,7 @@ export default function CreateSolution({
                 <FormStep label="Metadata">
                     <Stack gap={8}>
                         <Stack gap={3} align="center">
-                            <img
+                            <Illustration
                                 src="/images/nametag.png"
                                 alt=""
                                 className="size-20 object-contain"
@@ -149,7 +150,7 @@ export default function CreateSolution({
                 <FormStep label="Environment">
                     <Stack gap={8}>
                         <Stack gap={3} align="center">
-                            <img
+                            <Illustration
                                 src="/images/lock.png"
                                 alt=""
                                 className="size-20 object-contain"

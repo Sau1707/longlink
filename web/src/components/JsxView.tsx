@@ -7,6 +7,7 @@ import { resolveNavigationUrl } from '@/lib/url';
 import { useQuery } from '@tanstack/react-query';
 import type { ViewRuntime } from '@/views/manifest';
 import { useEffect, useRef, useState } from 'react';
+import { useAppearance } from '@/components/Appearance';
 import { PageError, PageLoading } from '@/components/Utils';
 import { commandSchema, parametersSchema, iconDataSchema, type ViewData } from '@/views/protocol';
 
@@ -34,6 +35,10 @@ export function JsxView({
     runtime: ViewRuntime;
 }) {
     const frame = useRef<HTMLIFrameElement>(null);
+    const { appearance } = useAppearance();
+    const currentAppearance = useRef(appearance);
+
+    const appearancePort = useRef<MessagePort | null>(null);
     const navigate = useNavigate();
     const reportError = useApiError();
     const [height, setHeight] = useState(1);
@@ -45,6 +50,12 @@ export function JsxView({
     >({ status: 'preparing' });
 
     const parameters = JSON.stringify(params);
+
+    // Update the mounted View without replacing its document or losing authored state.
+    useEffect(() => {
+        currentAppearance.current = appearance;
+        appearancePort.current?.postMessage({ type: 'appearance', appearance });
+    }, [appearance]);
 
     const { data: kernel, error: runtimeError } = useQuery({
         queryKey: ['view-runtime', requestBaseUrl, runtime],
@@ -111,6 +122,8 @@ export function JsxView({
             controller.abort();
             clearTimeout(handshakeTimer);
             window.removeEventListener('message', ready);
+
+            if (appearancePort.current === channel.port1) appearancePort.current = null;
             channel.port1.close();
             channel.port2.close();
         }
@@ -142,10 +155,12 @@ export function JsxView({
                         source,
                         params: parametersSchema.parse(JSON.parse(parameters)),
                         navigationBaseUrl: new URL(navigationBaseUrl, window.location.origin).href,
+                        appearance: currentAppearance.current,
                     },
                     '*',
                     [channel.port2]
                 );
+                appearancePort.current = channel.port1;
                 clearTimeout(handshakeTimer);
             } catch (error) {
                 fail('transfer', error instanceof Error ? error.name : 'Error');
@@ -249,7 +264,9 @@ export function JsxView({
             if (!controller.signal.aborted) {
                 // A blocked bootstrap script must surface an error instead of leaving a blank frame.
                 handshakeTimer = setTimeout(() => fail('readiness'), BOOTSTRAP_TIMEOUT_MS);
-                const document = `<!doctype html><html><head><meta http-equiv="Content-Security-Policy" content="${policy}"><meta name="referrer" content="no-referrer"><style>${styles.replace(/<\/style/gi, '<\\/style')}</style></head><body class="overflow-hidden bg-transparent text-primary"><main id="view"></main><script>${code}</script></body></html>`;
+                const appearance = currentAppearance.current;
+                const mode = appearance.theme === 'system' ? '' : ` data-theme="${appearance.theme}"`;
+                const document = `<!doctype html><html data-astryx-theme="stone" data-accent="${appearance.accent}"${mode}><head><meta http-equiv="Content-Security-Policy" content="${policy}"><meta name="referrer" content="no-referrer"><style>${styles.replace(/<\/style/gi, '<\\/style')}</style></head><body class="overflow-hidden bg-transparent text-primary"><main id="view"></main><script>${code}</script></body></html>`;
 
                 // Keep startup failure latched until the route owner mounts a fresh View.
                 setBootstrapState((current) =>

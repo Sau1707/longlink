@@ -1,4 +1,11 @@
 import { z } from 'zod';
+import { appearanceSchema } from '@/lib/appearance';
+
+export const appearanceMessageSchema = z
+    .object({ type: z.literal('appearance'), appearance: appearanceSchema })
+    .strict();
+
+export type AppearanceMessage = z.output<typeof appearanceMessageSchema>;
 
 // Allow the Platform's 120-second Solution proxy timeout to finish, including cold starts.
 export const REQUEST_TIMEOUT = 130_000;
