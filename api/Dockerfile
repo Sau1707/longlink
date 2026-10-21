@@ -24,12 +24,15 @@ ENV PATH="/app/.venv/bin:${PATH}"
 ENV HOME="/tmp"
 ENV PYTHONDONTWRITEBYTECODE="1"
 
-# Remove unused pip, system utilities, and their unused libraries.
+# Refresh certificate trust and remove unused pip, system utilities, and their unused libraries.
 RUN /usr/local/bin/python -m pip uninstall --yes pip \
+    && apt-get update \
+    && apt-get install --yes --no-install-recommends ca-certificates \
     && apt-get remove --yes --no-auto-remove --allow-remove-essential \
-        libblkid1 liblastlog2-2 libmount1 libsmartcols1 mount ncurses-bin util-linux
+        libblkid1 liblastlog2-2 libmount1 libsmartcols1 mount ncurses-bin util-linux \
+    && rm -rf /var/lib/apt/lists/*
 
-COPY --from=ghcr.io/astral-sh/uv:0.11.32@sha256:df4cae8f3a96d175e2e5f992e597550000edbe78fdc2594d5cd8de1a217f504c /uv /usr/local/bin/uv
+COPY --from=ghcr.io/astral-sh/uv:0.13.4@sha256:9f130421e930bfbdc563c00740466603f8723158e90297d07957c2294640262b /uv /usr/local/bin/uv
 
 COPY api/pyproject.toml api/uv.lock /app/
 COPY sdk/pyproject.toml sdk/README.md sdk/LICENSE /sdk/
