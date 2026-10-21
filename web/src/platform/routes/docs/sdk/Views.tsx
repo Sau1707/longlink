@@ -46,12 +46,12 @@ import { DropdownMenuExample } from './views/DropdownMenu';
 import { MetadataListExample } from './views/MetadataList';
 import { componentDocumentation } from '@/platform/routes';
 import { Blockquote } from '@astryxdesign/core/Blockquote';
-import { DocumentationArticle } from '@/components/Article';
 import { CheckboxInputExample } from './views/CheckboxInput';
 import { MultiSelectorExample } from './views/MultiSelector';
 import { Collapsible } from '@astryxdesign/core/Collapsible';
 import { documentationCategories } from '@/lib/documentation';
 import { Table, proportional } from '@astryxdesign/core/Table';
+import { DocumentationArticle } from '@/components/layouts/Article';
 import { SideNav, SideNavItem, SideNavSection } from '@astryxdesign/core/SideNav';
 
 const article = {
