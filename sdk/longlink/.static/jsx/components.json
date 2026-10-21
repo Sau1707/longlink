@@ -1809,12 +1809,6 @@
                     "default": "vertical"
                 },
                 {
-                    "name": "size",
-                    "type": "\"sm\" | \"md\"",
-                    "description": "Size of the radio controls.",
-                    "default": "md"
-                },
-                {
                     "name": "RadioListItem.label",
                     "type": "string",
                     "description": "Visible label identifying this choice."
