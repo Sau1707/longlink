@@ -4734,7 +4734,7 @@ declare function Dialog(props: {
 
 /** Submits named themed fields and ordinary HTML inputs to a Solution API endpoint. @category Form */
 declare function Form(props: {
-    /** Form fields and layout, or FormStep children for a multi-step form. */
+    /** Named fields and layout, including a Stepper in wizard mode. */
     children?: ViewNode;
     /** Solution-relative API path; external URLs are not supported. */
     action: string;
@@ -4742,20 +4742,10 @@ declare function Form(props: {
     method?: 'post' | 'put' | 'patch' | 'delete';
     /** Native form ID for associating external submit or reset buttons. */
     id?: string;
-    /** Form height, with scrollable fields in multi-step forms. */
+    /** Optional form height. Stepper owns its wizard panel layout. */
     height?: number | string;
-    /** Label for the automatic final submit button when using FormStep children; defaults to Save. */
-    submitLabel?: string;
     /** Runs after a successful write and automatic cached-data refresh. */
     onSuccess?: (data: ViewData) => void | Promise<void>;
-}): React.JSX.Element;
-
-/** @category Form */
-declare function FormStep(props: {
-    /** Visible label identifying this step in the progress indicator. */
-    label: string;
-    /** Fields arranged vertically with spacing step 3. Use an explicit layout child for custom grouping. */
-    children?: ViewNode;
 }): React.JSX.Element;
 
 /** @category Form */
@@ -5031,19 +5021,26 @@ declare function Stepper(props: {
     children?: ViewNode;
     activeStep?: number;
     orientation?: 'horizontal' | 'vertical';
-    /** Enables step activation and receives the clicked step's zero-based index. */
+    /** Enables progress step activation, or receives wizard selection changes. */
     onStepClick?: (index: number) => void;
+    /** Defaults to progress. Wizard mode owns persistent panels and Next/Back navigation. */
+    variant?: 'progress' | 'wizard';
+    height?: number | string;
+    /** Runs intermediate work after validation. Returning false prevents advancement. */
+    next?: (step: number) => { label: string; action: () => void | boolean | Promise<void | boolean> } | undefined;
+    onCancel?: () => void;
+    backVariant?: 'secondary' | 'ghost';
 }): React.JSX.Element;
 
 /** @category Layouts @group Stepper */
 declare function Step(props: {
-    /** Zero-based index of this step in the process. */
-    step: number;
+    /** Optional progress index; defaults to child order. Wizards always use child order. */
+    step?: number;
     /** Visible label identifying the step. */
     label: string;
     /** Supporting text displayed below the step label. */
     description?: string;
-    /** Step content, hidden in compact horizontal layouts. */
+    /** Persistent panel content in wizard mode; inline content in progress mode. */
     children?: ViewNode;
 }): React.JSX.Element;
 

@@ -773,7 +773,7 @@
                 {
                     "name": "children",
                     "type": "ReactNode",
-                    "description": "Form fields and layout, or FormStep children for a multi-step form."
+                    "description": "Named fields and layout, including a Stepper in wizard mode."
                 },
                 {
                     "name": "action",
@@ -793,34 +793,12 @@
                 {
                     "name": "height",
                     "type": "string | number",
-                    "description": "Form height, with scrollable fields in multi-step forms."
-                },
-                {
-                    "name": "submitLabel",
-                    "type": "string",
-                    "description": "Label for the automatic final submit button when using FormStep children; defaults to Save."
+                    "description": "Optional form height. Stepper owns its wizard panel layout."
                 },
                 {
                     "name": "onSuccess",
                     "type": "(data: ViewData) => void | Promise<void>",
                     "description": "Runs after a successful write and automatic cached-data refresh."
-                }
-            ]
-        },
-        {
-            "name": "FormStep",
-            "category": "Form",
-            "introduction": "",
-            "properties": [
-                {
-                    "name": "label",
-                    "type": "string",
-                    "description": "Visible label identifying this step in the progress indicator."
-                },
-                {
-                    "name": "children",
-                    "type": "ReactNode",
-                    "description": "Fields arranged vertically with spacing step 3. Use an explicit layout child for custom grouping."
                 }
             ]
         },
@@ -1831,8 +1809,35 @@
         {
             "name": "Stepper",
             "category": "Layouts",
-            "introduction": "Displays the current step using standard progress indicators.",
+            "introduction": "Displays progress by default. Wizard mode owns persistent Step panels and Next/Back navigation. Inside Form, Next validates the current panel and shared fields; an explicit submit Button in the last Step submits all fields.",
             "properties": [
+                {
+                    "name": "variant",
+                    "type": "\"progress\" | \"wizard\"",
+                    "description": "Wizard mode owns persistent panels and Next/Back navigation.",
+                    "default": "progress"
+                },
+                {
+                    "name": "height",
+                    "type": "number | string",
+                    "description": "Bounds a wizard, pinning progress above its scrollable panels."
+                },
+                {
+                    "name": "next",
+                    "type": "(step: number) => { label: string; action: () => void | boolean | Promise<void | boolean> } | undefined",
+                    "description": "Runs intermediate work after validation. Returning false prevents advancement."
+                },
+                {
+                    "name": "onCancel",
+                    "type": "() => void",
+                    "description": "Adds a Cancel action to wizard navigation."
+                },
+                {
+                    "name": "backVariant",
+                    "type": "\"secondary\" | \"ghost\"",
+                    "description": "Wizard Back button appearance.",
+                    "default": "secondary"
+                },
                 {
                     "name": "children",
                     "type": "ReactNode",
@@ -1841,7 +1846,7 @@
                 {
                     "name": "activeStep",
                     "type": "number",
-                    "description": "Zero-based index of the currently active step. Steps before this index are marked as completed.",
+                    "description": "Zero-based active index. Wizard mode manages selection internally when omitted.",
                     "default": 0
                 },
                 {
@@ -1853,12 +1858,12 @@
                 {
                     "name": "onStepClick",
                     "type": "(index: number) => void",
-                    "description": "Enables step activation and receives the clicked step's zero-based index."
+                    "description": "Enables progress step activation, or receives wizard selection changes."
                 },
                 {
                     "name": "Step.step",
                     "type": "number",
-                    "description": "Zero-based index of this step in the process."
+                    "description": "Optional progress index; defaults to child order. Wizards always use child order."
                 },
                 {
                     "name": "Step.label",
@@ -1873,7 +1878,7 @@
                 {
                     "name": "Step.children",
                     "type": "ReactNode",
-                    "description": "Step content, hidden in compact horizontal layouts."
+                    "description": "Persistent panel content in wizard mode; inline content in progress mode."
                 }
             ]
         },
