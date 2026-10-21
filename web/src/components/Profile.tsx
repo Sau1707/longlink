@@ -8,6 +8,7 @@ import { Stack } from '@astryxdesign/core/Stack';
 import { Button } from '@astryxdesign/core/Button';
 import { Divider } from '@astryxdesign/core/Divider';
 import { Popover } from '@astryxdesign/core/Popover';
+import { clearAppearanceCache } from '@/lib/appearance';
 import { List, ListItem } from '@astryxdesign/core/List';
 import { IconButton } from '@astryxdesign/core/IconButton';
 import { adminNavigation, userNavigation } from '@/platform/routes';
@@ -104,6 +105,7 @@ export function ProfileMenu({ user }: { user: z.output<typeof zUserSummary> }) {
 
                             // A full navigation disposes the authenticated cache only after logout succeeds.
                             await api('/api/v1/auth/logout', { method: 'POST' });
+                            clearAppearanceCache();
                             window.location.assign('/user/organizations');
                         }}
                         variant="destructive"

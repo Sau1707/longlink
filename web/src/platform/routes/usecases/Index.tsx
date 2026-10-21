@@ -5,6 +5,7 @@ import { useCasePages } from '@/platform/routes';
 import { Stack } from '@astryxdesign/core/Stack';
 import { Heading } from '@astryxdesign/core/Heading';
 import { Section } from '@astryxdesign/core/Section';
+import { Illustration } from '@/components/Illustration';
 import { ClickableCard } from '@astryxdesign/core/ClickableCard';
 
 /** Introduces the showcase and links to the Real Estate example. */
@@ -42,7 +43,7 @@ export default function UseCasesIndex() {
                             >
                                 <Stack gap={4} align="center">
                                     <Stack width="100%" maxWidth={160}>
-                                        <img
+                                        <Illustration
                                             src="/images/property-screening.png"
                                             alt="Property screening illustration with a house, magnifying glass, checklist, map, and financial chart."
                                             className="h-auto w-full object-contain"

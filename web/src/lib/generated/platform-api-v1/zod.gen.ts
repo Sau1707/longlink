@@ -126,6 +126,44 @@ export const zConsent = z.object({
 });
 
 /**
+ * CurrentUser
+ *
+ * Include personal preferences only in the account's own profile.
+ */
+export const zCurrentUser = z.object({
+    id: z.uuid(),
+    name: z.string(),
+    email: z.email(),
+    avatar: z.string(),
+    administrator: z.boolean(),
+    theme: z.enum([
+        'system',
+        'light',
+        'dark'
+    ]),
+    accent: z.enum([
+        'neutral',
+        'red',
+        'orange',
+        'amber',
+        'yellow',
+        'lime',
+        'green',
+        'emerald',
+        'teal',
+        'cyan',
+        'sky',
+        'blue',
+        'indigo',
+        'violet',
+        'purple',
+        'fuchsia',
+        'pink',
+        'rose'
+    ])
+});
+
+/**
  * EmailPayload
  *
  * Return one verified email address.
@@ -765,7 +803,32 @@ export const zUserSummary = z.object({
  */
 export const zUserUpdate = z.object({
     name: z.string().min(1).max(255).nullish(),
-    avatar: z.string().max(2048).nullish()
+    avatar: z.string().max(2048).nullish(),
+    theme: z.enum([
+        'system',
+        'light',
+        'dark'
+    ]).nullish(),
+    accent: z.enum([
+        'neutral',
+        'red',
+        'orange',
+        'amber',
+        'yellow',
+        'lime',
+        'green',
+        'emerald',
+        'teal',
+        'cyan',
+        'sky',
+        'blue',
+        'indigo',
+        'violet',
+        'purple',
+        'fuchsia',
+        'pink',
+        'rose'
+    ]).nullish()
 });
 
 /**
