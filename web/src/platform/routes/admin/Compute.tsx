@@ -53,11 +53,9 @@ export default function Compute() {
             </Stack>
             <TextInput
                 label="Search compute"
-                isLabelHidden
                 placeholder="Search by name or endpoint"
                 value={filters.search}
                 startIcon={<Search />}
-                hasClear
                 onChange={(search) => setFilters({ search, page: 1 })}
             />
             <Stack gap={1}>

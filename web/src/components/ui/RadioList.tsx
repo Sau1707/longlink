@@ -24,11 +24,12 @@ export function RadioList(
     return (
         <AstryxRadioList
             {...props}
+            width="100%"
             {...field}
             htmlName={props.name}
             children={props.children}
             orientation={props.orientation ?? 'vertical'}
-            size="sm"
+            size="md"
             isLabelHidden={false}
             isRequired={props.required ?? false}
             isDisabled={props.disabled ?? false}

@@ -11,9 +11,18 @@ import { Popover } from '@astryxdesign/core/Popover';
 import { clearAppearanceCache } from '@/lib/appearance';
 import { List, ListItem } from '@astryxdesign/core/List';
 import { IconButton } from '@astryxdesign/core/IconButton';
-import { adminNavigation, userNavigation } from '@/platform/routes';
-import { BookOpen, ChevronRight, ExternalLink } from 'lucide-react';
 import type { zUserSummary } from '@/lib/generated/platform-api-v1/zod.gen';
+import {
+    AppWindow,
+    ArrowUpDown,
+    BookOpen,
+    Building2,
+    ChevronRight,
+    ExternalLink,
+    Settings2,
+    Users,
+    Wrench,
+} from 'lucide-react';
 
 /** Renders a user profile popover with authentication and navigation actions. */
 export function ProfileMenu({ user }: { user: z.output<typeof zUserSummary> }) {
@@ -43,22 +52,20 @@ export function ProfileMenu({ user }: { user: z.output<typeof zUserSummary> }) {
                             </Text>
                         }
                     >
-                        {userNavigation.map((item) => {
-                            const Icon = item.icon;
-
-                            return (
-                                <ListItem
-                                    endContent={
-                                        <ChevronRight aria-hidden="true" className="text-secondary" size={12} />
-                                    }
-                                    href={item.href}
-                                    key={item.href}
-                                    label={item.label}
-                                    onClickCapture={closeMenu}
-                                    startContent={<Icon aria-hidden="true" className="text-secondary" size={16} />}
-                                />
-                            );
-                        })}
+                        <ListItem
+                            endContent={<ChevronRight aria-hidden="true" className="text-secondary" size={12} />}
+                            href="/user/organizations"
+                            label="Organizations"
+                            onClickCapture={closeMenu}
+                            startContent={<Building2 aria-hidden="true" className="text-secondary" size={16} />}
+                        />
+                        <ListItem
+                            endContent={<ChevronRight aria-hidden="true" className="text-secondary" size={12} />}
+                            href="/user/settings"
+                            label="Settings"
+                            onClickCapture={closeMenu}
+                            startContent={<Settings2 aria-hidden="true" className="text-secondary" size={16} />}
+                        />
                         <ListItem
                             endContent={<ExternalLink aria-hidden="true" className="text-secondary" size={12} />}
                             href="/docs/"
@@ -79,21 +86,38 @@ export function ProfileMenu({ user }: { user: z.output<typeof zUserSummary> }) {
                                     </Text>
                                 }
                             >
-                                {adminNavigation.map((item) => {
-                                    const Icon = item.icon;
-
-                                    return (
-                                        <ListItem
-                                            href={item.href}
-                                            key={item.href}
-                                            label={item.label}
-                                            onClickCapture={closeMenu}
-                                            startContent={
-                                                <Icon aria-hidden="true" className="text-secondary" size={16} />
-                                            }
-                                        />
-                                    );
-                                })}
+                                <ListItem
+                                    href="/admin/users"
+                                    label="Users"
+                                    onClickCapture={closeMenu}
+                                    startContent={<Users aria-hidden="true" className="text-secondary" size={16} />}
+                                />
+                                <ListItem
+                                    href="/admin/solutions"
+                                    label="Solutions"
+                                    onClickCapture={closeMenu}
+                                    startContent={<AppWindow aria-hidden="true" className="text-secondary" size={16} />}
+                                />
+                                <ListItem
+                                    href="/admin/organizations"
+                                    label="Organizations"
+                                    onClickCapture={closeMenu}
+                                    startContent={<Building2 aria-hidden="true" className="text-secondary" size={16} />}
+                                />
+                                <ListItem
+                                    href="/admin/compute"
+                                    label="Compute"
+                                    onClickCapture={closeMenu}
+                                    startContent={<Wrench aria-hidden="true" className="text-secondary" size={16} />}
+                                />
+                                <ListItem
+                                    href="/admin/operations"
+                                    label="Operations"
+                                    onClickCapture={closeMenu}
+                                    startContent={
+                                        <ArrowUpDown aria-hidden="true" className="text-secondary" size={16} />
+                                    }
+                                />
                             </List>
                             <Divider />
                         </>

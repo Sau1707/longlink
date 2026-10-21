@@ -1,10 +1,4 @@
 /** @category Layouts */
-export { Layout } from '@/components/ui/Layout';
-
-/** @category Layouts @group Layout */
-export { LayoutContent, LayoutHeader, LayoutFooter, LayoutPanel } from '@/components/ui/Layout';
-
-/** @category Layouts */
 export { Stack } from '@/components/ui/Stack';
 
 /** @category Layouts @group Stack */

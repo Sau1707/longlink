@@ -162,7 +162,7 @@ export default function ViewLayout({
                                 <Text as="p">No standalone example is available for this component.</Text>
                             )}
                         </Stack>
-                        <Stack as="section" gap={0} aria-labelledby="component-properties">
+                        <Stack as="section" gap={5} aria-labelledby="component-properties">
                             <Heading id="component-properties" level={2}>
                                 Properties
                             </Heading>
