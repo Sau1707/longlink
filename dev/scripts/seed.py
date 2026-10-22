@@ -89,12 +89,13 @@ async def development_compute(client: httpx2.AsyncClient) -> Resource | None:
     return next((compute for compute in computes if compute.name == DEVELOPMENT_COMPUTE), None)
 
 
-async def register_compute(client: httpx2.AsyncClient, settings: SeedSettings) -> Resource:
-    """Create the local Compute when absent and return its record."""
+async def register_compute(client: httpx2.AsyncClient, settings: SeedSettings) -> None:
+    """Create the local Compute when absent."""
 
+    # Reuse the registered local Compute.
     compute = await development_compute(client)
     if compute is not None:
-        return compute
+        return
 
     # Register the fixed local infrastructure through the same API contract as an administrator.
     response = await client.post(
@@ -109,12 +110,12 @@ async def register_compute(client: httpx2.AsyncClient, settings: SeedSettings) -
     )
     if response.status_code != 409:
         response.raise_for_status()
-        return Resource.model_validate(response.json())
+        return
 
+    # Accept a concurrent registration only when the local Compute now exists.
     compute = await development_compute(client)
     if compute is None:
         raise RuntimeError("Local Compute registration was not recorded")
-    return compute
 
 
 async def development_organization(client: httpx2.AsyncClient) -> Resource | None:
@@ -243,29 +244,26 @@ async def create_invited_organization(settings: SeedSettings) -> None:
     print(f"Pending invitation to ACME Studio ready: {settings.PUBLIC_URL}/orgs")
 
 
-async def seed(settings: SeedSettings, client: httpx2.AsyncClient) -> None:
+async def seed(settings: SeedSettings) -> None:
     """Reuse local infrastructure and recreate the seeded sample Solution."""
 
-    # Authenticate with the administrator that the API initializes during startup.
-    response = await client.post("/api/v1/auth/password/login", json={"email": settings.ADMIN_EMAIL, "password": settings.ADMIN_PASSWORD})
-    response.raise_for_status()
-
-    await register_compute(client, settings)
-    await create_invited_organization(settings)
-
-    organization = await create_organization(client)
-    await create_sample(client, settings, organization)
-
-
-async def run(settings: SeedSettings) -> None:
-    """Run local seeding through the configured Platform API."""
-
+    # Own the API client for the complete provisioning workflow.
     async with httpx2.AsyncClient(
         base_url=settings.API_URL, headers={"Origin": settings.PUBLIC_URL}, timeout=10, trust_env=False
     ) as client:
         # Release the fixture database connection even when API provisioning fails.
         try:
-            await seed(settings, client)
+            # Authenticate with the administrator that the API initializes during startup.
+            response = await client.post(
+                "/api/v1/auth/password/login", json={"email": settings.ADMIN_EMAIL, "password": settings.ADMIN_PASSWORD}
+            )
+            response.raise_for_status()
+
+            await register_compute(client, settings)
+            await create_invited_organization(settings)
+
+            organization = await create_organization(client)
+            await create_sample(client, settings, organization)
         finally:
             await session.dispose_engine()
 
@@ -273,7 +271,8 @@ async def run(settings: SeedSettings) -> None:
 def main() -> None:
     """Seed local development from a synchronous entrypoint."""
 
-    asyncio.run(run(SeedSettings()))
+    settings = SeedSettings()
+    asyncio.run(seed(settings))
 
 
 if __name__ == "__main__":

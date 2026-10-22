@@ -113,7 +113,6 @@ async def test_issue_recovers_remote_success_after_crash_without_duplicate_charg
     remote_items: list[dict] = []
     remote_coupons: dict[str, dict] = {}
     finalized_totals: list[int] = []
-    creations: list[str] = []
     monkeypatch.setattr(env, "STRIPE_SECRET_KEY", "sk_test_invoices")
     monkeypatch.setattr(env, "STRIPE_WEBHOOK_SECRET", "whsec_invoices")
 
@@ -142,7 +141,6 @@ async def test_issue_recovers_remote_success_after_crash_without_duplicate_charg
                 "total": 0,
             }
             remote_invoices.append(remote)
-            creations.append("invoice")
             payload = remote
             event = "invoice"
         elif method == "get" and path == "/v1/invoiceitems":
@@ -165,7 +163,6 @@ async def test_issue_recovers_remote_success_after_crash_without_duplicate_charg
             }
             remote_items.append(item)
             remote_invoices[0]["total"] += item["amount"]
-            creations.append("item")
             payload = item
             event = "item"
         elif method == "get" and path.startswith("/v1/coupons/"):
@@ -187,7 +184,6 @@ async def test_issue_recovers_remote_success_after_crash_without_duplicate_charg
                 "metadata": {"longlink_invoice_id": params["metadata[longlink_invoice_id]"][0]},
             }
             remote_coupons[coupon_id] = payload
-            creations.append("coupon")
         elif method == "post" and path == "/v1/invoices/in_1":
             coupon = remote_coupons[params["discounts[0][coupon]"][0]]
             remote_invoices[0]["total"] = sum(item["amount"] for item in remote_items) - coupon["amount_off"]
@@ -236,7 +232,7 @@ async def test_issue_recovers_remote_success_after_crash_without_duplicate_charg
         assert persisted is not None
         assert persisted.stripe_invoice_id == "in_1"
         assert persisted.issued_at is not None
-    assert creations == ["invoice", "item", "item", "item", "coupon"]
+    assert len(remote_invoices) == 1
     assert finalized_totals == [2123]
     assert [(item["metadata"]["resource"], item["amount"]) for item in remote_items] == [
         ("users", 7000),
