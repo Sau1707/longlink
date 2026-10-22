@@ -360,11 +360,12 @@ export const zOrganizationUsage = z.object({
     free_users: z.int().optional().default(5),
     free_storage_bytes: z.int().optional().default(1073741824),
     free_database_bytes: z.int().optional().default(104857600),
-    user_monthly_price: z.int().optional().default(500),
-    storage_gib_monthly_price: z.int().optional().default(10),
-    database_gib_monthly_price: z.int().optional().default(100),
+    user_monthly_price: z.int().optional().default(1000),
+    storage_mib_monthly_price: z.string().regex(/^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$/).optional().default('0.02'),
+    database_mib_monthly_price: z.string().regex(/^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$/).optional().default('0.1'),
     users: z.int().gte(0),
-    stripe_enabled: z.boolean()
+    stripe_enabled: z.boolean(),
+    has_payment_method: z.boolean()
 });
 
 /**

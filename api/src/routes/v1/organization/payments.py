@@ -1,5 +1,7 @@
+import httpx2
+import asyncio
 from src import auth
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from datetime import UTC, datetime
 from sqlmodel import col
 from src.utils import stripe
@@ -7,6 +9,7 @@ from sqlalchemy import select
 from src.context import Context
 from src.environments import env
 from src.models.roles import OrganizationRoles
+from fastapi.responses import Response
 from src.models.payments import PaymentCard, PaymentInvoice, PaymentRedirect
 from src.database.services import payments, organizations
 from src.database.models.organizations import Organization
@@ -74,6 +77,56 @@ async def get_invoices(ctx: Context, membership: auth.OrganizationOwner):
             async for invoice in invoices.auto_paging_iter()
             if invoice.status in {"open", "paid", "void", "uncollectible"}
         ]
+
+
+@router.get(
+    "/organizations/{organization_id}/invoices/{invoice_id}/pdf",
+    response_class=Response,
+    response_model=None,
+    responses={200: {"content": {"application/pdf": {"schema": {"type": "string", "format": "binary"}}}}},
+)
+async def get_invoice_pdf(invoice_id: str, ctx: Context, membership: auth.OrganizationOwner):
+    """Display an owner's invoice PDF inline without forwarding Stripe's download headers."""
+
+    # Authorize the invoice against this Organization's Stripe customer.
+    customer_id = await ctx.database.scalar(
+        select(col(Organization.stripe_customer_id)).where(col(Organization.id) == membership.organization_id)
+    )
+    if not env.stripe_enabled or customer_id is None:
+        raise HTTPException(status_code=404, detail="Invoice PDF unavailable")
+    async with stripe.client() as connection:
+        invoice = await connection.v1.invoices.retrieve_async(invoice_id)
+    if invoice.customer != customer_id or invoice.status not in {"open", "paid", "void", "uncollectible"} or not invoice.invoice_pdf:
+        raise HTTPException(status_code=404, detail="Invoice PDF unavailable")
+
+    # Fetch only Stripe-provided invoice documents with bounded time and memory.
+    url = httpx2.URL(invoice.invoice_pdf)
+    if url.scheme != "https" or url.host not in {"invoice.stripe.com", "pay.stripe.com"}:
+        raise HTTPException(status_code=502, detail="Invoice PDF unavailable")
+    content = bytearray()
+    try:
+        async with asyncio.timeout(30), httpx2.AsyncClient(timeout=15, trust_env=False, follow_redirects=True) as client:
+            async with client.stream("GET", url) as response:
+                response.raise_for_status()
+                async for chunk in response.aiter_bytes():
+                    if len(content) + len(chunk) > 10 * 1024**2:
+                        raise HTTPException(status_code=502, detail="Invoice PDF is too large")
+                    content.extend(chunk)
+    except (httpx2.HTTPError, TimeoutError):
+        raise HTTPException(status_code=503, detail="Invoice PDF unavailable. Please try again.") from None
+    if not content.startswith(b"%PDF-"):
+        raise HTTPException(status_code=502, detail="Invoice PDF unavailable")
+
+    # Keep private accounting documents out of caches and let the browser display the PDF.
+    return Response(
+        content=bytes(content),
+        media_type="application/pdf",
+        headers={
+            "Content-Disposition": 'inline; filename="invoice.pdf"',
+            "Cache-Control": "private, no-store",
+            "X-Content-Type-Options": "nosniff",
+        },
+    )
 
 
 @router.post("/organizations/{organization_id}/cards/checkout", response_model=PaymentRedirect)
