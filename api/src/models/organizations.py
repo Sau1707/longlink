@@ -29,6 +29,7 @@ class OrganizationUsage(UsageRates):
     # Usage and payments
     users: int = Field(ge=0)
     stripe_enabled: bool
+    has_payment_method: bool
 
 
 class OrganizationQuotasResponse(BaseModel):
