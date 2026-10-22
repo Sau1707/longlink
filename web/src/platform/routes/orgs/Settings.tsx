@@ -202,7 +202,7 @@ function GeneralSection({
             {canDelete && (
                 <Stack gap={3}>
                     <Stack className="text-red-600 dark:text-red-400">
-                        <Heading level={3} color="inherit">
+                        <Heading level={4} accessibilityLevel={3} color="inherit">
                             Danger zone
                         </Heading>
                     </Stack>

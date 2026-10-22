@@ -1,3 +1,4 @@
+import { ExternalLink } from 'lucide-react';
 import { useApi } from '@/lib/hooks/use-api';
 import { Card } from '@astryxdesign/core/Card';
 import { Text } from '@astryxdesign/core/Text';
@@ -25,8 +26,29 @@ export default function Usage({ base }: { base: string }) {
             <Divider />
             <Card padding={0} className="overflow-hidden">
                 <Stack gap={0}>
-                    <Stack gap={1} paddingInline={4} paddingBlock={2} className="bg-muted">
-                        <Heading level={3}>Monthly usage</Heading>
+                    <Stack
+                        direction="horizontal"
+                        align="center"
+                        justify="between"
+                        gap={4}
+                        paddingInline={4}
+                        paddingBlock={2}
+                        className="bg-muted"
+                    >
+                        <Stack gap={0}>
+                            <Heading level={4} accessibilityLevel={3}>
+                                Monthly usage
+                            </Heading>
+                            <Text color="secondary">Free tier limits</Text>
+                        </Stack>
+                        <Button
+                            label="See prices"
+                            size="sm"
+                            href="/pricing/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            endContent={<ExternalLink className="size-4" aria-hidden="true" />}
+                        />
                     </Stack>
                     <Divider />
                     <Stack gap={4} padding={4}>

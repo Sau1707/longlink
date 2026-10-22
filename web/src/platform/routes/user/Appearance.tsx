@@ -41,52 +41,57 @@ export default function AppearanceSettings() {
     }
 
     return (
-        <Card>
-            <Stack gap={4}>
-                <Heading level={3}>Appearance</Heading>
-                <RadioList
-                    label="Theme"
-                    value={appearance.theme}
-                    orientation="horizontal"
-                    isDisabled={saving}
-                    onChange={(theme) => void saveAppearance(appearanceSchema.parse({ ...appearance, theme }))}
-                >
-                    <RadioListItem value="system" label="System" />
-                    <RadioListItem value="light" label="Light" />
-                    <RadioListItem value="dark" label="Dark" />
-                </RadioList>
-                <Stack gap={2} role="group" aria-label="Accent color">
-                    <Text>Accent color</Text>
-                    <Stack direction="horizontal" wrap="wrap" gap={2}>
-                        {accentColors.map((accent) => (
-                            <Button
-                                key={accent}
-                                label={accent.charAt(0).toUpperCase() + accent.slice(1)}
-                                aria-pressed={appearance.accent === accent}
-                                isDisabled={saving}
-                                icon={
-                                    appearance.accent === accent ? (
-                                        <Check size={16} data-accent-swatch={accent} aria-hidden="true" />
-                                    ) : (
-                                        <Circle
-                                            size={16}
-                                            data-accent-swatch={accent}
-                                            fill="currentColor"
-                                            aria-hidden="true"
-                                        />
-                                    )
-                                }
-                                onClick={() => void saveAppearance({ ...appearance, accent })}
-                            />
-                        ))}
+        <Stack gap={3}>
+            <Heading level={4} accessibilityLevel={3}>
+                Appearance
+            </Heading>
+            <Card>
+                <Stack gap={4}>
+                    <RadioList
+                        label="Theme"
+                        size="sm"
+                        value={appearance.theme}
+                        orientation="horizontal"
+                        isDisabled={saving}
+                        onChange={(theme) => void saveAppearance(appearanceSchema.parse({ ...appearance, theme }))}
+                    >
+                        <RadioListItem value="system" label="System" />
+                        <RadioListItem value="light" label="Light" />
+                        <RadioListItem value="dark" label="Dark" />
+                    </RadioList>
+                    <Stack gap={2} role="group" aria-label="Accent color">
+                        <Text>Accent color</Text>
+                        <Stack direction="horizontal" wrap="wrap" gap={2}>
+                            {accentColors.map((accent) => (
+                                <Button
+                                    key={accent}
+                                    label={accent.charAt(0).toUpperCase() + accent.slice(1)}
+                                    aria-pressed={appearance.accent === accent}
+                                    isDisabled={saving}
+                                    icon={
+                                        appearance.accent === accent ? (
+                                            <Check size={16} data-accent-swatch={accent} aria-hidden="true" />
+                                        ) : (
+                                            <Circle
+                                                size={16}
+                                                data-accent-swatch={accent}
+                                                fill="currentColor"
+                                                aria-hidden="true"
+                                            />
+                                        )
+                                    }
+                                    onClick={() => void saveAppearance({ ...appearance, accent })}
+                                />
+                            ))}
+                        </Stack>
                     </Stack>
+                    {saving && (
+                        <Text type="supporting" color="secondary" role="status">
+                            Saving appearance…
+                        </Text>
+                    )}
                 </Stack>
-                {saving && (
-                    <Text type="supporting" color="secondary" role="status">
-                        Saving appearance…
-                    </Text>
-                )}
-            </Stack>
-        </Card>
+            </Card>
+        </Stack>
     );
 }

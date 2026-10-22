@@ -60,7 +60,9 @@ export default function TabsSection({ base, canMaintain }: { base: string; canMa
         <>
             <Stack gap={3}>
                 <Stack direction="horizontal" justify="between" align="center" wrap="wrap">
-                    <Heading level={3}>Tabs</Heading>
+                    <Heading level={4} accessibilityLevel={3}>
+                        Tabs
+                    </Heading>
                     {canMaintain && <Button label="New tab" size="sm" onClick={() => setEditing('create')} />}
                 </Stack>
                 <Table
