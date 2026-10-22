@@ -1,7 +1,7 @@
 import fsspec
 import weakref
 from uuid import uuid4
-from pathlib import PurePosixPath
+from pathlib import Path, PurePosixPath
 from contextlib import ExitStack
 from fsspec.spec import AbstractFileSystem
 from longlink.storage import tls
@@ -67,8 +67,15 @@ def create_fs(settings: Envs) -> AbstractFileSystem:
         weakref.finalize(filesystem, _remove_memory_directory, memory, directory)
         return filesystem
     else:
-        # Development keeps generated files locally inspectable.
+        # Development keeps generated files inside a dedicated local directory.
+        storage_path = Path.cwd() / ".storage"
+        if bucket_path is not None:
+            storage_path /= bucket_path
+            if prefix_path is not None:
+                storage_path /= prefix_path
+        storage_path.mkdir(parents=True, exist_ok=True)
         filesystem = fsspec.filesystem("file")
+        return DirFileSystem(path=storage_path.as_posix(), fs=filesystem, skip_instance_cache=True)
 
     # Scope paths without letting the wrapper cache retain the backend and its CA file.
     if bucket_path is not None:
