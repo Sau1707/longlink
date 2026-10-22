@@ -3053,6 +3053,73 @@
         }
       }
     },
+    "/api/v1/organizations/{organization_id}/invoices/{invoice_id}/pdf": {
+      "get": {
+        "summary": "Get Invoice Pdf",
+        "description": "Display an owner's invoice PDF inline without forwarding Stripe's download headers.",
+        "operationId": "get_invoice_pdf_api_v1_organizations__organization_id__invoices__invoice_id__pdf_get",
+        "parameters": [
+          {
+            "name": "invoice_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Invoice Id"
+            }
+          },
+          {
+            "name": "organization_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Organization Id"
+            }
+          },
+          {
+            "name": "longlink_auth",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Longlink Auth"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/organizations/{organization_id}/cards/checkout": {
       "post": {
         "summary": "Create Checkout",
@@ -4992,17 +5059,19 @@
           "user_monthly_price": {
             "type": "integer",
             "title": "User Monthly Price",
-            "default": 500
+            "default": 1000
           },
-          "storage_gib_monthly_price": {
-            "type": "integer",
-            "title": "Storage Gib Monthly Price",
-            "default": 10
+          "storage_mib_monthly_price": {
+            "type": "string",
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Storage Mib Monthly Price",
+            "default": "0.02"
           },
-          "database_gib_monthly_price": {
-            "type": "integer",
-            "title": "Database Gib Monthly Price",
-            "default": 100
+          "database_mib_monthly_price": {
+            "type": "string",
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Database Mib Monthly Price",
+            "default": "0.1"
           },
           "users": {
             "type": "integer",
@@ -5012,12 +5081,17 @@
           "stripe_enabled": {
             "type": "boolean",
             "title": "Stripe Enabled"
+          },
+          "has_payment_method": {
+            "type": "boolean",
+            "title": "Has Payment Method"
           }
         },
         "type": "object",
         "required": [
           "users",
-          "stripe_enabled"
+          "stripe_enabled",
+          "has_payment_method"
         ],
         "title": "OrganizationUsage",
         "description": "Describe current membership usage and its month-end pricing."

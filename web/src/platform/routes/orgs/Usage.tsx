@@ -10,10 +10,11 @@ import { ApiBoundary } from '@/components/ApiBoundary';
 import { ProgressBar } from '@astryxdesign/core/ProgressBar';
 import * as schemas from '@/lib/generated/platform-api-v1/zod.gen';
 
-/** Shows the Organization's month-end usage and included allowances. */
+/** Shows the Organization's usage against free allowances or card-enabled capacity. */
 export default function Usage({ base }: { base: string }) {
-    // Share authoritative membership counts and rates without loading payment resources.
+    // Share authoritative membership counts, card registration, and rates without querying Stripe.
     const [usage] = useApi(`${base}/usage`, schemas.zOrganizationUsage);
+    const userScale = usage.has_payment_method ? Math.max(100, usage.users) : usage.free_users;
 
     // Retain the existing settings shell and its spacing.
     return (
@@ -39,7 +40,9 @@ export default function Usage({ base }: { base: string }) {
                             <Heading level={4} accessibilityLevel={3}>
                                 Monthly usage
                             </Heading>
-                            <Text color="secondary">Free tier limits</Text>
+                            <Text color="secondary">
+                                {usage.has_payment_method ? 'Provisioned capacity' : 'Free tier limits'}
+                            </Text>
                         </Stack>
                         <Button
                             label="See prices"
@@ -55,9 +58,9 @@ export default function Usage({ base }: { base: string }) {
                         <ProgressBar
                             label="Users"
                             value={usage.users}
-                            max={usage.free_users}
+                            max={userScale}
                             hasValueLabel
-                            formatValueLabel={() => `${usage.users} / ${usage.free_users}`}
+                            formatValueLabel={() => `${usage.users} / ${userScale}`}
                         />
                         {(['storage', 'database'] as const).map((resource) => (
                             <ApiBoundary
@@ -79,6 +82,7 @@ export default function Usage({ base }: { base: string }) {
                                     included={
                                         resource === 'storage' ? usage.free_storage_bytes : usage.free_database_bytes
                                     }
+                                    hasPaymentMethod={usage.has_payment_method}
                                 />
                             </ApiBoundary>
                         ))}
@@ -89,28 +93,33 @@ export default function Usage({ base }: { base: string }) {
     );
 }
 
-/** Shows measured storage against the included allowance independently of the other usage reads. */
+/** Shows measured storage against the free allowance or its actual provisioned quota. */
 function UsageMeter({
     base,
     resource,
     included,
+    hasPaymentMethod,
 }: {
     base: string;
     resource: 'storage' | 'database';
     included: number;
+    hasPaymentMethod: boolean;
 }) {
     const [usage] = useApi(
         `${base}/${resource}`,
         resource === 'storage' ? schemas.zOrganizationStorageUsageResponse : schemas.zOrganizationDatabaseUsageResponse
     );
 
+    // Registered Organizations use their actual provisioned capacity.
+    const capacity = hasPaymentMethod ? usage.quota_bytes : included;
+
     return (
         <ProgressBar
             label={resource === 'storage' ? 'File storage' : 'Database storage'}
             value={usage.space_used}
-            max={included}
+            max={capacity}
             hasValueLabel
-            formatValueLabel={() => `${formatStorage(usage.space_used)} / ${formatStorage(included)}`}
+            formatValueLabel={() => `${formatStorage(usage.space_used)} / ${formatStorage(capacity)}`}
         />
     );
 }
