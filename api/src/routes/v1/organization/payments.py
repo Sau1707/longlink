@@ -8,10 +8,9 @@ from src.utils import stripe
 from sqlalchemy import select
 from src.context import Context
 from src.environments import env
-from src.models.roles import OrganizationRoles
 from fastapi.responses import Response
 from src.models.payments import PaymentCard, PaymentInvoice, PaymentRedirect
-from src.database.services import payments, organizations
+from src.database.services import payments
 from src.database.models.organizations import Organization
 
 router = APIRouter()
@@ -133,11 +132,8 @@ async def get_invoice_pdf(invoice_id: str, ctx: Context, membership: auth.Organi
 async def create_checkout(ctx: Context, membership: auth.OrganizationOwner):
     """Save an invoice payment method without taking an immediate payment."""
 
-    # Serialize card registration with membership changes and deletion.
-    organization_id = membership.organization_id
-    organization = await organizations.lock(ctx.database, organization_id)
-    await organizations.locked_membership(ctx.database, membership.user_id, organization_id, OrganizationRoles.owner)
+    # The service serializes card registration and revalidates ownership across its commits.
     async with stripe.client() as connection:
-        url = await payments.checkout(ctx.database, organization, membership.user_id, connection)
+        url = await payments.checkout(ctx.database, membership.organization_id, membership.user_id, connection)
     await ctx.database.commit()
     return {"url": url}

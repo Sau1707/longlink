@@ -53,8 +53,12 @@ async def save_card(
         await operations.enqueue(session, kind=OperationKind.organization_create, target_id=organization.id, coalesce=False)
 
 
-async def checkout(session: AsyncSession, organization: Organization, user_id: UUID, connection: stripe.StripeClient) -> str:
+async def checkout(session: AsyncSession, organization_id: UUID, user_id: UUID, connection: stripe.StripeClient) -> str:
     """Create or reuse an owner-authorized, durable hosted card-registration attempt."""
+
+    # Serialize card registration with membership changes and deletion before contacting Stripe.
+    organization = await organizations.lock(session, organization_id)
+    await organizations.locked_membership(session, user_id, organization_id, OrganizationRoles.owner)
 
     # Persist the Organization's customer before creating its hosted card-registration attempt.
     if organization.deleted_at is not None:

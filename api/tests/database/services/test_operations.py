@@ -238,9 +238,8 @@ async def test_operations_service_coalesces_claimed_work() -> None:
         assert released.lease_expires_at is None
 
 
-@pytest.fixture
-async def pending_revision_change() -> tuple[Solution, Revision, Revision]:
-    """Persist an older deployment while a newer revision is desired."""
+async def test_operations_service_complete_reenqueues_stale_effective_revision() -> None:
+    """Requeue the effective revision when an outdated deploy completes."""
 
     # Create both revisions in the same Organization before either operation runs.
     compute_registry = await create_compute()
@@ -263,16 +262,7 @@ async def pending_revision_change() -> tuple[Solution, Revision, Revision]:
         solution.deployed_revision_id = deployed_revision.id
         await session.commit()
 
-    return solution, deployed_revision, desired_revision
-
-
-async def test_operations_service_complete_reenqueues_stale_effective_revision(
-    pending_revision_change: tuple[Solution, Revision, Revision],
-) -> None:
-    """Requeue the effective revision when an outdated deploy completes."""
-
     # Arrange
-    _, deployed_revision, desired_revision = pending_revision_change
     outdated = await queue(kind=OperationKind.solution_deploy, target_id=deployed_revision.id)
     assert await claim_operation() is not None
 
@@ -351,15 +341,11 @@ async def test_claim_globally_leases_one_operation_to_one_concurrent_worker(
                 return operation
 
         # Act with bounded execution and guaranteed cleanup of both worker sessions.
-        workers = [asyncio.create_task(claim_after_shared_read()), asyncio.create_task(claim_after_shared_read())]
-        try:
-            async with asyncio.timeout(10):
-                claims = await asyncio.gather(*workers)
-        finally:
-            for worker in workers:
-                worker.cancel()
-            async with asyncio.timeout(5):
-                await asyncio.gather(*workers, return_exceptions=True)
+        async with asyncio.timeout(10):
+            async with asyncio.TaskGroup() as workers:
+                first_worker = workers.create_task(claim_after_shared_read())
+                second_worker = workers.create_task(claim_after_shared_read())
+        claims = [first_worker.result(), second_worker.result()]
         claimed = [claim for claim in claims if claim is not None]
 
         # Assert one winner both in the returned claims and in committed database state.
