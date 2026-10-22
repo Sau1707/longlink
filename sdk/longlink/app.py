@@ -15,7 +15,7 @@ from fastapi.routing import APIRoute
 from longlink.errors import install_error_handlers
 from longlink.logger import ApiAccessFilter
 from longlink.routes import router
-from fastapi.responses import Response, FileResponse, RedirectResponse
+from fastapi.responses import Response, RedirectResponse
 from starlette.routing import Match
 from longlink.constants import ROOT
 from longlink.middleware import FrontendMiddleware
@@ -141,28 +141,11 @@ class LongLink(FastAPI):
         for definition, content in discovered_views:
             self.add_api_route(f"/{definition.path}", _view_handler(content), methods=["GET"], include_in_schema=False)
 
-        # Resolve navigation at request time to include Views registered after construction.
-        @self.get("/", include_in_schema=False)
-        async def redirect_root() -> Response:
-            """Redirect to the first tab or serve the frontend when there are no tabs."""
-
-            tabs = self._view_manifest.tabs
-            if tabs is not None:
-                first_route = tabs[0].route if tabs else None
-            else:
-                first_route = next(
-                    (
-                        definition.route
-                        for definition in view_definitions
-                        if definition.route != "/" and "/" not in definition.route[1:] and ":" not in definition.route
-                    ),
-                    None,
-                )
-
-            if first_route is not None:
-                return RedirectResponse(first_route)
-
-            return FileResponse(frontend_assets.index)
+        # Reserve the root redirect only when automatic navigation has a target.
+        if any(
+            definition.route != "/" and "/" not in definition.route[1:] and ":" not in definition.route for definition in view_definitions
+        ):
+            self.add_api_route("/", self._redirect_root, methods=["GET"], include_in_schema=False)
 
         # Share the manifest catalog after registering Views so they cannot collide with themselves.
         self._views = view_definitions
@@ -258,6 +241,21 @@ class LongLink(FastAPI):
 
         tab = views.ViewTab(route=definition.route, label=label.strip() if label is not None else None, icon=icon)
         tabs.append(tab)
+
+        # Explicit nested tabs need a redirect even when there were no automatic root tabs.
+        if len(tabs) == 1 and not any(view.route != "/" and "/" not in view.route[1:] and ":" not in view.route for view in self._views):
+            self.add_api_route("/", self._redirect_root, methods=["GET"], include_in_schema=False)
+
+    async def _redirect_root(self) -> RedirectResponse:
+        """Resolve the first tab after Solution navigation registration is complete."""
+
+        # A root redirect is registered only when automatic or explicit tabs exist.
+        tabs = self._view_manifest.tabs
+        if tabs is not None:
+            return RedirectResponse(tabs[0].route)
+
+        first_route = next(view.route for view in self._views if view.route != "/" and "/" not in view.route[1:] and ":" not in view.route)
+        return RedirectResponse(first_route)
 
     # FastAPI accepts framework-defined router options with heterogeneous values.
     def include_router(self, router: APIRouter, **kwargs: Any) -> None:  # noqa: ANN401
