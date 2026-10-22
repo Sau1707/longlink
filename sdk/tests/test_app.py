@@ -198,7 +198,7 @@ def test_dynamic_view_is_registered_from_jsx_without_sidecar_metadata(solution_s
 
 
 def test_view_catalog_orders_paths_and_redirects_to_first_static_view(solution_source: Path) -> None:
-    """Keep lexical catalog order while skipping parameter routes for the root redirect."""
+    """Keep lexical catalog order while skipping nested and parameter routes for the root redirect."""
 
     # Arrange
     nested_directory = solution_source / "views" / "admin"
@@ -225,7 +225,7 @@ def test_view_catalog_orders_paths_and_redirects_to_first_static_view(solution_s
         "runtime": runtime,
     }
     assert root_response.status_code == 307
-    assert root_response.headers["location"] == "/admin/alpha"
+    assert root_response.headers["location"] == "/zebra"
 
 
 def test_invalid_view_fails_during_registration(solution_source: Path) -> None:
