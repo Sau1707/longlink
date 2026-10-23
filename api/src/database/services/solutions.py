@@ -90,7 +90,7 @@ async def create(
     solution_limit_result = await session.execute(
         select(col(Solution.id))
         .where(col(Solution.organization_id) == organization_id, col(Solution.deleted_at).is_(None))
-        .offset(2)
+        .offset(9)
         .limit(1)
         .with_for_update()
     )
